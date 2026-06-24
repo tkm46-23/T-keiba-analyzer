@@ -212,8 +212,9 @@ input::placeholder{color:var(--tx3)}
   <div class="sts" id="r-sts"><i class="ti ti-loader-2 spin"></i><span id="r-stx">取得中...</span></div>
 
   <div class="prog" id="r-prog">
-    <div class="progt"><i class="ti ti-loader-2 spin"></i>各馬を分析中...</div>
+    <div class="progt"><i class="ti ti-loader-2 spin"></i>各馬を分析中...（1頭ごとに3秒待機・レート制限対策済み）</div>
     <div class="progbo"><div class="progbi" id="r-pb" style="width:0%"></div></div>
+    <div style="font-size:11px;color:var(--tx2);margin-bottom:6px;min-height:16px" id="r-stx-prog"></div>
     <div class="progl" id="r-pl"></div>
   </div>
 
@@ -254,6 +255,41 @@ var API_ENDPOINT = '/api/claude';
 
 var sRdr = null, rHorses = [], drawnR = {};
 
+// ── レート制限対策ユーティリティ ──
+function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
+
+async function sleepWithMsg(ms, msgEl) {
+  var secs = Math.ceil(ms / 1000);
+  for (var i = secs; i > 0; i--) {
+    if (msgEl) msgEl.textContent = 'レート制限のため ' + i + '秒待機中...';
+    await sleep(1000);
+  }
+  if (msgEl) msgEl.textContent = '';
+}
+
+// リトライ付きAPI呼び出し（最大3回）
+async function apiWithRetry(sys, usr, retries, statusMsgEl) {
+  retries = retries || 3;
+  for (var attempt = 0; attempt < retries; attempt++) {
+    try {
+      return await api(sys, usr);
+    } catch(e) {
+      var isRateLimit = e.message && (
+        e.message.indexOf('rate limit') !== -1 ||
+        e.message.indexOf('rate_limit') !== -1 ||
+        e.message.indexOf('429') !== -1 ||
+        e.message.indexOf('tokens per minute') !== -1
+      );
+      if (isRateLimit && attempt < retries - 1) {
+        var waitSec = (attempt + 1) * 15;
+        await sleepWithMsg(waitSec * 1000, statusMsgEl);
+      } else {
+        throw e;
+      }
+    }
+  }
+}
+
 function sw(id) {
   ['s','r'].forEach(function(x) {
     document.getElementById('pnl-'+x).classList.toggle('on', x===id);
@@ -279,21 +315,42 @@ async function api(sys, usr) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 1000,
-      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+      max_tokens: 1500,
       system: sys,
       messages: [{ role: 'user', content: usr }]
     })
   });
   if (!r.ok) {
     var errData = await r.json().catch(function() { return {}; });
-    throw new Error((errData.error && errData.error.message) || 'API ' + r.status);
+    var errMsg = (errData.error && errData.error.message) || JSON.stringify(errData) || 'API ' + r.status;
+    throw new Error(errMsg);
   }
   var d = await r.json();
-  var txt = d.content.map(function(b) { return b.type==='text' ? b.text : ''; }).filter(Boolean).join('\n');
-  var m = txt.replace(/```json|```/g, '').trim().match(/\{[\s\S]+\}/);
-  if (!m) throw new Error('レスポンスの解析に失敗しました。');
-  return JSON.parse(m[0]);
+
+  // すべてのtextブロックを結合（tool_useが混在しても対応）
+  var txt = '';
+  if (d.content && Array.isArray(d.content)) {
+    txt = d.content
+      .filter(function(b) { return b.type === 'text'; })
+      .map(function(b) { return b.text || ''; })
+      .join('\n');
+  }
+
+  // JSON抽出（コードブロック・前置きテキスト・後置きを除去）
+  var cleaned = txt.replace(/```json/g, '').replace(/```/g, '').trim();
+
+  // {...} の最も外側のJSONを抽出
+  var start = cleaned.indexOf('{');
+  var end = cleaned.lastIndexOf('}');
+  if (start === -1 || end === -1 || end <= start) {
+    throw new Error('AIがJSONを返しませんでした。もう一度お試しください。（受信: ' + cleaned.slice(0, 80) + '）');
+  }
+  var jsonStr = cleaned.slice(start, end + 1);
+  try {
+    return JSON.parse(jsonStr);
+  } catch(parseErr) {
+    throw new Error('JSON解析エラー: ' + parseErr.message + '（内容: ' + jsonStr.slice(0, 80) + '）');
+  }
 }
 
 function radar(cid, labels, vals, inst) {
@@ -329,7 +386,7 @@ async function doSingle() {
   setErr('s',''); document.getElementById('s-res').style.display = 'none';
   document.getElementById('s-btn').disabled = true;
 
-  var sys = '競馬専門アナリストとして競走馬を分析しJSONのみ返してください。前置き・コードブロック不要。\n' +
+  var sys = '競馬専門アナリストとして競走馬を分析してください。【重要】返答は必ずJSON形式のみ。前置き・説明文・```コードブロック・改行コメントは一切不要。最初の文字が{で最後の文字が}になるように返してください。\n' +
     '{"horseName":"馬名(カタカナ)","horseMeta":"性齢・調教師など1行","summary":"総合評価2〜3文",' +
     '"firstThreeF":"前半3F平均タイム数値 例35.8 不明はnull","lastThreeF":"上り3F平均タイム数値 例34.2 不明はnull",' +
     '"cornerPosition":"最終コーナー平均位置数値 例3.2 不明はnull",' +
@@ -392,7 +449,7 @@ async function doRace() {
   document.getElementById('r-btn').disabled = true;
   rHorses = []; drawnR = {};
 
-  var eSys = '競馬専門アナリストとして出馬表ページから出走馬リストを取得しJSONのみ返してください。前置き・コードブロック不要。\n' +
+  var eSys = '競馬専門アナリストとして出馬表ページから出走馬リストを取得してください。【重要】返答は必ずJSON形式のみ。前置き・説明文・```コードブロック不要。最初の文字が{で最後の文字が}になるように返してください。\n' +
     '{"raceName":"レース名","raceInfo":"日程・競馬場・距離・芝/ダート・馬場など","horses":[{"num":1,"name":"馬名カタカナ","jockey":"騎手名","trainer":"調教師名"}]}\n' +
     'URLにアクセスして全出走馬を抽出してください。';
 
@@ -411,7 +468,7 @@ async function doRace() {
       return '<div class="pli wait" id="pl-'+h.num+'"><i class="ti ti-clock"></i>'+h.num+'. '+h.name+'</div>';
     }).join('');
 
-    var hSys = '競馬専門アナリストとして競走馬を分析しJSONのみ返してください。前置き・コードブロック不要。\n' +
+    var hSys = '競馬専門アナリストとして競走馬を分析してください。【重要】返答は必ずJSON形式のみ。前置き・説明文・```コードブロック・改行コメントは一切不要。最初の文字が{で最後の文字が}になるように返してください。\n' +
       '{"name":"馬名","meta":"性齢・調教師など1行","summary":"総合評価1〜2文",' +
       '"firstThreeF":"前半3F平均数値 不明はnull","lastThreeF":"上り3F平均数値 不明はnull",' +
       '"cornerPosition":"最終コーナー平均位置数値 不明はnull","runningStyle":"逃げ/先行/差し/追込",' +
@@ -421,16 +478,25 @@ async function doRace() {
       '"expectedCorner4":3}';
 
     var results = [];
+    var stxEl = document.getElementById('r-stx');
     for (var i = 0; i < horses.length; i++) {
       var h = horses[i];
       var pli = document.getElementById('pl-' + h.num);
       if (pli) { pli.className='pli run'; pli.innerHTML='<i class="ti ti-loader-2 spin"></i>'+h.num+'. '+h.name; }
+
+      // 1頭目以外は3秒待機してレート制限を回避
+      if (i > 0) {
+        if (stxEl) stxEl.textContent = h.num+'頭目を分析中... ('+i+'/'+horses.length+')';
+        await sleep(3000);
+      }
+
       try {
-        var d = await api(hSys,
+        var d = await apiWithRetry(hSys,
           '馬名: '+h.name+' ('+(entries.raceName||'')+'出走)\n'+
           '騎手: '+(h.jockey||'不明')+' 調教師: '+(h.trainer||'不明')+'\n'+
           'レース情報: '+(entries.raceInfo||info||'不明')+'\n'+
-          '過去成績から前半3F・上り3F・最終コーナー位置取り平均・脚質・長所短所・得意不得意条件を分析してください。知識ベースから分析可。');
+          '過去成績から前半3F・上り3F・最終コーナー位置取り平均・脚質・長所短所・得意不得意条件を分析してください。知識ベースから分析可。',
+          3, stxEl);
         d._num = h.num; d._jockey = h.jockey || '';
         results.push(d);
         if (pli) { pli.className='pli done'; pli.innerHTML='<i class="ti ti-check"></i>'+h.num+'. '+h.name; }
@@ -443,7 +509,7 @@ async function doRace() {
 
     // レース展開予測
     setSts('r','レース展開を予測中...');
-    var rSys = '競馬専門アナリストとしてレース展開を予測しJSONのみ返してください。前置き・コードブロック不要。\n' +
+    var rSys = '競馬専門アナリストとしてレース展開を予測してください。【重要】返答は必ずJSON形式のみ。前置き・説明文・```コードブロック不要。最初の文字が{で最後の文字が}になるように返してください。\n' +
       '{"raceSummary":"展開予測2〜3文","expectedPace":"ハイペース/ミドルペース/スローペース",' +
       '"expectedF3":"前半3F想定タイム数値","expectedL3":"上り3F想定タイム数値",' +
       '"expectedWinTime":"想定勝ちタイム例1:58.5","paceDescription":"ペース根拠・展開説明2〜3文",' +
@@ -563,4 +629,5 @@ document.addEventListener('keydown', function(e) {
 </script>
 </body>
 </html>
+
 
