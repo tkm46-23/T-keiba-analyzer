@@ -16,6 +16,7 @@
   --rbg:#fcebeb;--rtx:#8c1f1f;
   --bbg:#e6f1fb;--btx:#0c447c;
   --r:8px;--rl:12px;
+  --c0:#378add;--c1:#1d9e75;--c2:#d85a30;--c3:#7f77dd;--c4:#ba7517;
 }
 @media(prefers-color-scheme:dark){:root{
   --bg:#1e1e1c;--bg2:#2a2a28;--bg3:#323230;
@@ -24,13 +25,12 @@
   --gbg:#173404;--gtx:#c0dd97;
   --rbg:#501313;--rtx:#f09595;
   --bbg:#042c53;--btx:#85b7eb;
-  --abg:#412402;--atx:#fac775;
 }}
 body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif;font-size:14px;line-height:1.6;color:var(--tx);background:var(--bg3);min-height:100vh}
 .hdr{background:var(--bg);border-bottom:.5px solid var(--bd);padding:0 20px;height:50px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
 .logo{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px}
 .logo i{color:var(--tx2);font-size:18px}
-.main{max-width:800px;margin:0 auto;padding:20px 16px}
+.main{max-width:900px;margin:0 auto;padding:20px 16px}
 .card{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:.9rem 1.1rem;margin-bottom:.9rem}
 .slbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding-bottom:7px;border-bottom:.5px solid var(--bd);margin-bottom:11px}
 .brow{display:flex;gap:7px;align-items:center;margin-top:.9rem;flex-wrap:wrap}
@@ -38,425 +38,417 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .btn:hover{background:var(--bg2)}.btn:active{transform:scale(.98)}
 .btng{background:transparent;border-color:var(--bd);color:var(--tx2)}.btng:hover{background:var(--bg2)}
 .err{display:none;background:var(--rbg);border:.5px solid var(--bd);border-radius:var(--r);padding:.75rem 1rem;font-size:12px;color:var(--rtx);margin-bottom:.8rem}.err.on{display:block}
-/* アップロード */
-.upload-zone{border:2px dashed var(--bd2);border-radius:var(--rl);padding:28px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;background:var(--bg)}
-.upload-zone:hover,.upload-zone.drag{border-color:#378add;background:var(--bbg)}
-.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upload-icon{font-size:32px;color:var(--tx3);margin-bottom:8px}
-.upload-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px}
-.upload-sub{font-size:11px;color:var(--tx3)}
-.file-selected{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--gbg);border-radius:var(--r);font-size:12px;color:var(--gtx);margin-top:8px}
+
+/* アップロードスロット */
+.slots{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:.5rem}
+@media(max-width:680px){.slots{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:420px){.slots{grid-template-columns:repeat(2,1fr)}}
+.slot{border:1.5px dashed var(--bd2);border-radius:var(--rl);padding:10px 6px;text-align:center;cursor:pointer;position:relative;transition:border-color .2s,background .2s;min-height:88px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:var(--bg)}
+.slot:hover,.slot.drag{border-color:#378add;background:var(--bbg)}
+.slot.loaded{border-style:solid}
+.slot input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.slot-num{width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+.slot-label{font-size:10px;color:var(--tx3);line-height:1.4}
+.slot-name{font-size:11px;font-weight:600;color:var(--tx);line-height:1.3;word-break:break-all}
+.slot-del{position:absolute;top:4px;right:4px;width:16px;height:16px;border-radius:50%;background:var(--rbg);color:var(--rtx);font-size:10px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:2;border:none;padding:0}
+.slot.loaded .slot-del{display:flex}
 .dl-link{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--btx);text-decoration:none;padding:4px 10px;border:.5px solid var(--bd2);border-radius:var(--r);margin-top:6px;transition:background .15s}
 .dl-link:hover{background:var(--bbg)}
-/* プレビュー */
-.preview-wrap{overflow-x:auto;margin-top:8px}
-.preview-tbl{border-collapse:collapse;font-size:11px;min-width:100%}
-.preview-tbl th{background:var(--bg3);color:var(--tx2);padding:4px 8px;border:.5px solid var(--bd);white-space:nowrap}
-.preview-tbl td{padding:3px 8px;border:.5px solid var(--bd);color:var(--tx);white-space:nowrap}
-.preview-tbl tr:nth-child(even) td{background:var(--bg2)}
-/* 結果ヘッダー */
+
+/* モード表示バッジ */
+.mode-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:600;margin-bottom:.9rem}
+.mode-single{background:var(--bbg);color:var(--btx)}
+.mode-compare{background:var(--gbg);color:var(--gtx)}
+
+/* 結果セクション */
+.section-title{font-size:13px;font-weight:600;color:var(--tx);display:flex;align-items:center;gap:6px;padding:.8rem 0 .4rem;border-bottom:.5px solid var(--bd);margin-bottom:.9rem}
+.section-title i{font-size:15px;color:var(--tx3)}
+
+/* 1頭用メトリクス */
 .horse-header{padding-bottom:.9rem;border-bottom:.5px solid var(--bd);margin-bottom:1rem}
-.horse-name{font-size:22px;font-weight:700;color:var(--tx)}
+.horse-name{font-size:22px;font-weight:700}
 .horse-father{font-size:13px;color:var(--tx2);margin-top:2px}
-/* メトリクス3列 */
 .mg3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
 @media(max-width:500px){.mg3{grid-template-columns:1fr 1fr}}
 .mc{background:var(--bg2);border-radius:var(--r);padding:.85rem 1rem}
 .mclb{font-size:10px;color:var(--tx3);margin-bottom:4px;line-height:1.4}
-.mcv{font-size:22px;font-weight:700;color:var(--tx);line-height:1}
+.mcv{font-size:22px;font-weight:700;line-height:1}
 .mcu{font-size:12px;font-weight:400;color:var(--tx2);margin-left:2px}
 .mc-sub{font-size:10px;color:var(--tx3);margin-top:4px}
+
+/* 対比テーブル */
+.cmp-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.cmp-tbl th{padding:8px 10px;border:.5px solid var(--bd);font-size:11px;font-weight:500;color:var(--tx2);background:var(--bg3);white-space:nowrap;text-align:left}
+.cmp-tbl td{padding:8px 10px;border:.5px solid var(--bd);white-space:nowrap}
+.cmp-tbl .val{font-size:16px;font-weight:700;text-align:right}
+.cmp-tbl .val-best{color:var(--gtx)}
+.cmp-tbl .sub{font-size:10px;color:var(--tx3);text-align:right}
+.cmp-tbl tr:nth-child(even) td{background:var(--bg2)}
+
 /* コース別テーブル */
-.course-tbl-wrap{overflow-x:auto}
-.course-tbl{width:100%;border-collapse:collapse;font-size:13px}
-.course-tbl th{background:var(--bg3);color:var(--tx2);padding:7px 10px;border:.5px solid var(--bd);text-align:left;white-space:nowrap;font-size:11px;font-weight:500;letter-spacing:.04em}
-.course-tbl td{padding:7px 10px;border:.5px solid var(--bd);color:var(--tx);white-space:nowrap}
+.course-wrap{overflow-x:auto}
+.course-tbl{border-collapse:collapse;font-size:12px;min-width:100%}
+.course-tbl th{background:var(--bg3);color:var(--tx2);padding:6px 9px;border:.5px solid var(--bd);white-space:nowrap;font-size:11px;font-weight:500}
+.course-tbl td{padding:6px 9px;border:.5px solid var(--bd);white-space:nowrap}
 .course-tbl tr:nth-child(even) td{background:var(--bg2)}
 .course-tbl tr:hover td{background:var(--bbg)}
-.finish-1{color:var(--gtx);font-weight:700}
-.finish-2{color:#185fa5;font-weight:600}
-.finish-3{color:#854f0b;font-weight:600}
+.horse-tag{display:inline-block;padding:1px 7px;border-radius:100px;font-size:10px;font-weight:700;color:#fff}
+.f1{color:var(--gtx);font-weight:700}.f2{color:#185fa5;font-weight:600}.f3{color:#854f0b;font-weight:600}
 .snote{font-size:11px;color:var(--tx3);padding-top:.9rem;border-top:.5px solid var(--bd);display:flex;align-items:flex-start;gap:4px;margin-top:.9rem;line-height:1.5}
 </style>
 </head>
 <body>
-
 <header class="hdr">
   <div class="logo"><i class="ti ti-trophy" aria-hidden="true"></i>競走馬プロファイラー</div>
 </header>
-
 <main class="main">
 
-  <div class="card">
-    <p class="slbl">Excelファイルをアップロード</p>
-    <div class="upload-zone" id="zone"
-         ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onDrop(event)">
-      <input type="file" accept=".xlsx,.xls" onchange="onFile(event)" id="file-input">
-      <div class="upload-icon"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i></div>
-      <div class="upload-title">Excelファイルをドラッグ＆ドロップ</div>
-      <div class="upload-sub">または クリックしてファイルを選択（.xlsx / .xls）</div>
-    </div>
-    <div id="file-info" style="display:none" class="file-selected">
-      <i class="ti ti-circle-check" aria-hidden="true"></i><span id="file-name"></span>
-    </div>
-    <p style="font-size:11px;color:var(--tx3);margin-top:8px">
-      テンプレートをダウンロードして使用してください →
-      <a href="keiba_1頭検索_テンプレート.xlsx" download class="dl-link">
-        <i class="ti ti-download" aria-hidden="true"></i>テンプレートDL
-      </a>
-    </p>
-    <div id="preview" style="display:none">
-      <p class="slbl" style="margin-top:.8rem">読み込みデータ（先頭5行）</p>
-      <div class="preview-wrap"><table class="preview-tbl" id="ptbl"></table></div>
-    </div>
-  </div>
+<div class="card">
+  <p class="slbl">Excelファイルをアップロード（最大5頭・1頭でも対応）</p>
+  <div class="slots" id="slots"></div>
+  <p style="font-size:11px;color:var(--tx3);margin-top:4px">
+    テンプレート →
+    <a href="keiba_1頭検索_テンプレート.xlsx" download class="dl-link">
+      <i class="ti ti-download" aria-hidden="true"></i>テンプレートDL
+    </a>
+  </p>
+</div>
 
-  <div class="err" id="err"></div>
-  <div class="brow">
-    <button class="btn" onclick="doAnalyze()"><i class="ti ti-chart-bar" aria-hidden="true"></i>分析する</button>
-    <button class="btn btng" onclick="doClear()">クリア</button>
-  </div>
+<div class="err" id="err"></div>
+<div class="brow">
+  <button class="btn" onclick="doAnalyze()"><i class="ti ti-chart-bar" aria-hidden="true"></i>分析する</button>
+  <button class="btn btng" onclick="doClearAll()">すべてクリア</button>
+</div>
 
-  <!-- 結果 -->
-  <div id="result" style="display:none;margin-top:1.4rem">
+<div id="result" style="display:none;margin-top:1.4rem">
 
+  <!-- モードバッジ -->
+  <div id="mode-badge"></div>
+
+  <!-- ① 1頭用表示 -->
+  <div id="view-single" style="display:none">
     <div class="horse-header">
-      <div class="horse-name" id="r-name"></div>
-      <div class="horse-father" id="r-father"></div>
+      <div class="horse-name" id="s-name"></div>
+      <div class="horse-father" id="s-father"></div>
     </div>
-
-    <!-- ① 前半3F / 上り3F / 最終コーナー -->
     <div class="card">
       <p class="slbl">直近20レースの平均値</p>
       <div class="mg3">
-        <div class="mc">
-          <div class="mclb">前半3F 平均タイム</div>
-          <div class="mcv" id="r-f3">—</div>
-          <div class="mc-sub" id="r-f3-n"></div>
-        </div>
-        <div class="mc">
-          <div class="mclb">上り3F 平均タイム</div>
-          <div class="mcv" id="r-l3">—</div>
-          <div class="mc-sub" id="r-l3-n"></div>
-        </div>
-        <div class="mc">
-          <div class="mclb">最終コーナー 平均位置</div>
-          <div class="mcv" id="r-cor">—</div>
-          <div class="mc-sub" id="r-cor-n"></div>
-        </div>
+        <div class="mc"><div class="mclb">前半3F 平均タイム</div><div class="mcv" id="s-f3">—</div><div class="mc-sub" id="s-f3n"></div></div>
+        <div class="mc"><div class="mclb">上り3F 平均タイム</div><div class="mcv" id="s-l3">—</div><div class="mc-sub" id="s-l3n"></div></div>
+        <div class="mc"><div class="mclb">最終コーナー 平均位置</div><div class="mcv" id="s-cor">—</div><div class="mc-sub" id="s-corn"></div></div>
       </div>
     </div>
-
-    <!-- ② コース・距離別 最速タイム -->
     <div class="card">
       <p class="slbl">コース・距離別 最速走破タイム</p>
-      <div class="course-tbl-wrap">
-        <table class="course-tbl">
-          <thead>
-            <tr>
-              <th>競馬場</th>
-              <th>芝/ダート</th>
-              <th>距離</th>
-              <th>馬場</th>
-              <th>最速タイム</th>
-              <th>上り3F</th>
-              <th>着順</th>
-              <th>レース名</th>
-              <th>日付</th>
-            </tr>
-          </thead>
-          <tbody id="r-course"></tbody>
-        </table>
-      </div>
+      <div class="course-wrap"><table class="course-tbl" id="s-course-tbl"></table></div>
     </div>
-
-    <p class="snote"><i class="ti ti-info-circle" aria-hidden="true"></i>Excelの成績データから集計した結果です。予想の参考情報としてご活用ください。</p>
   </div>
 
+  <!-- ② 対比用表示 -->
+  <div id="view-compare" style="display:none">
+    <div class="card">
+      <div class="section-title"><i class="ti ti-chart-bar" aria-hidden="true"></i>平均タイム・位置取り 対比（直近20レース）</div>
+      <div style="overflow-x:auto"><table class="cmp-tbl" id="cmp-tbl"></table></div>
+    </div>
+    <div class="card">
+      <div class="section-title"><i class="ti ti-list" aria-hidden="true"></i>コース・距離別 最速走破タイム 一覧（全馬）</div>
+      <div class="course-wrap"><table class="course-tbl" id="c-course-tbl"></table></div>
+    </div>
+  </div>
+
+  <p class="snote"><i class="ti ti-info-circle" aria-hidden="true"></i>Excelの成績データから集計した結果です。予想の参考情報としてご活用ください。</p>
+</div>
+
 </main>
-
 <script>
-var excelData = null;
+var MAX = 5;
+var horses = new Array(MAX).fill(null);
+var COLORS = ['var(--c0)','var(--c1)','var(--c2)','var(--c3)','var(--c4)'];
+var COLORS_HEX = ['#378add','#1d9e75','#d85a30','#7f77dd','#ba7517'];
 
-// ── ファイル操作 ──
-function onDrag(e, over) {
-  e.preventDefault();
-  document.getElementById('zone').classList.toggle('drag', over);
-}
-function onDrop(e) {
-  e.preventDefault();
-  document.getElementById('zone').classList.remove('drag');
-  var f = e.dataTransfer.files[0];
-  if (f) readExcel(f);
-}
-function onFile(e) { var f = e.target.files[0]; if (f) readExcel(f); }
+function initSlots() {
+  var el = document.getElementById('slots');
+  el.innerHTML = '';
+  for (var i = 0; i < MAX; i++) {
+    (function(idx) {
+      var div = document.createElement('div');
+      div.className = 'slot' + (horses[idx] ? ' loaded' : '');
+      div.id = 'slot-' + idx;
+      div.ondragover = function(e){ e.preventDefault(); div.classList.add('drag'); };
+      div.ondragleave = function(){ div.classList.remove('drag'); };
+      div.ondrop = function(e){ e.preventDefault(); div.classList.remove('drag'); var f=e.dataTransfer.files[0]; if(f) readExcel(f,idx); };
 
-function readExcel(file) {
+      var num = document.createElement('div');
+      num.className = 'slot-num';
+      num.style.background = COLORS_HEX[idx];
+      num.textContent = idx + 1;
+
+      var inp = document.createElement('input');
+      inp.type = 'file'; inp.accept = '.xlsx,.xls';
+      inp.onchange = function(e){ if(e.target.files[0]) readExcel(e.target.files[0], idx); };
+
+      var del = document.createElement('button');
+      del.className = 'slot-del';
+      del.innerHTML = '<i class="ti ti-x" aria-hidden="true"></i>';
+      del.onclick = function(e){ e.stopPropagation(); e.preventDefault(); horses[idx]=null; initSlots(); document.getElementById('result').style.display='none'; };
+
+      var lbl = document.createElement('div');
+      if (horses[idx]) {
+        lbl.className = 'slot-name';
+        lbl.textContent = horses[idx].horseName || 'データ読込済';
+      } else {
+        lbl.className = 'slot-label';
+        lbl.textContent = 'クリックまたは\nドロップ';
+      }
+
+      div.appendChild(num); div.appendChild(inp); div.appendChild(del); div.appendChild(lbl);
+      el.appendChild(div);
+    })(i);
+  }
+}
+
+function doClearAll() {
+  horses = new Array(MAX).fill(null);
+  initSlots();
+  document.getElementById('result').style.display = 'none';
+  setErr('');
+}
+
+function readExcel(file, idx) {
   var reader = new FileReader();
   reader.onload = function(e) {
     try {
       var wb = XLSX.read(e.target.result, { type: 'array' });
       var data = {};
       wb.SheetNames.forEach(function(name) {
-        data[name] = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: '' });
+        data[name] = XLSX.utils.sheet_to_json(wb.Sheets[name], { header:1, defval:'' });
       });
-      excelData = data;
-      showPreview(data);
-      document.getElementById('file-info').style.display = 'flex';
-      document.getElementById('file-name').textContent = file.name;
+      var parsed = parseExcel(data);
+      parsed.colorIdx = idx;
+      horses[idx] = parsed;
+      initSlots();
       setErr('');
-    } catch(err) { setErr('Excelの読み込みに失敗しました: ' + err.message); }
+    } catch(err) { setErr('ファイル読み込みエラー（'+(idx+1)+'頭目）: '+err.message); }
   };
   reader.readAsArrayBuffer(file);
 }
 
-function showPreview(data) {
-  var sheet = data[Object.keys(data)[0]] || [];
-  var tbl = document.getElementById('ptbl');
-  tbl.innerHTML = sheet.slice(0, 5).map(function(row, ri) {
-    var tag = ri === 0 ? 'th' : 'td';
-    return '<tr>' + (row||[]).slice(0, 12).map(function(cell) {
-      return '<'+tag+'>'+String(cell).slice(0,16)+'</'+tag+'>';
-    }).join('') + '</tr>';
-  }).join('');
-  document.getElementById('preview').style.display = 'block';
-}
-
-// ── Excel解析 ──
 function parseExcel(data) {
   var sheet = data[Object.keys(data)[0]] || [];
-
-  // 馬名（C2〜J2）・父馬名（M2〜）
-  var horseName = '', fatherName = '';
+  var horseName='', fatherName='';
   if (sheet[1]) {
-    for (var ci = 2; ci <= 9; ci++) {
-      if (String(sheet[1][ci]||'').trim()) { horseName = String(sheet[1][ci]).trim(); break; }
-    }
-    for (var ci2 = 12; ci2 < (sheet[1].length||0); ci2++) {
-      if (String(sheet[1][ci2]||'').trim()) { fatherName = String(sheet[1][ci2]).trim(); break; }
-    }
+    for (var ci=2;ci<=9;ci++){ if(String(sheet[1][ci]||'').trim()){horseName=String(sheet[1][ci]).trim();break;} }
+    for (var ci2=12;ci2<(sheet[1].length||0);ci2++){ if(String(sheet[1][ci2]||'').trim()){fatherName=String(sheet[1][ci2]).trim();break;} }
   }
-
-  // ヘッダー行を探す
-  var headerRow = -1;
-  for (var ri = 0; ri < Math.min(sheet.length, 10); ri++) {
-    var rowStr = (sheet[ri]||[]).join('');
-    if (rowStr.indexOf('日付') !== -1 || rowStr.indexOf('レース名') !== -1) { headerRow = ri; break; }
+  var headerRow=-1;
+  for (var ri=0;ri<Math.min(sheet.length,10);ri++){
+    var rs=(sheet[ri]||[]).join('');
+    if(rs.indexOf('日付')!==-1||rs.indexOf('レース名')!==-1){headerRow=ri;break;}
   }
-  if (headerRow === -1) return { horseName:horseName, fatherName:fatherName, rows:[] };
+  if(headerRow===-1) return {horseName:horseName,fatherName:fatherName,rows:[]};
 
-  var headers = (sheet[headerRow]||[]).map(function(h){ return String(h).trim(); });
+  var headers=(sheet[headerRow]||[]).map(function(h){return String(h).trim();});
+  function col(names){for(var i=0;i<names.length;i++){var x=headers.indexOf(names[i]);if(x!==-1)return x;}return -1;}
+  var iDate=col(['日付']),iKai=col(['開催']),iRace=col(['レース名']),iDist=col(['距離']),
+      iTrack=col(['馬場']),iFinish=col(['着順']),iPace=col(['ペース']),
+      iAgari=col(['上り']),iPass=col(['通過']),iTime=col(['タイム']);
 
-  function col(names) {
-    for (var i=0;i<names.length;i++){var idx=headers.indexOf(names[i]);if(idx!==-1)return idx;}
-    return -1;
+  var rows=[];
+  for(var ri2=headerRow+1;ri2<sheet.length;ri2++){
+    var row=sheet[ri2]||[];
+    if(row.join('').replace(/#VALUE!/g,'').trim()==='') continue;
+
+    var rawT=iTime>=0?row[iTime]:'', timeStr='';
+    if(rawT&&!isNaN(rawT)&&parseFloat(rawT)<1){
+      var ts=parseFloat(rawT)*86400,m=Math.floor(ts/60),s=(ts-m*60).toFixed(1);
+      timeStr=m+':'+(parseFloat(s)<10?'0':'')+s;
+    } else { timeStr=String(rawT).trim(); }
+
+    var kRaw=iKai>=0?String(row[iKai]||'').trim():'';
+    var venue=kRaw.replace(/^[0-9]+/,'').replace(/[0-9]+$/,'');
+    var dRaw=iDist>=0?String(row[iDist]||'').trim():'';
+    var sm=dRaw.match(/^(芝|ダート|ダ)/);
+    var surface=sm?(sm[1]==='ダ'?'ダート':sm[1]):'';
+    var distNum=dRaw.replace(/^(芝|ダート|ダ)/,'').trim();
+
+    var pRaw=iPace>=0?String(row[iPace]||'').trim():'',f3=null;
+    if(pRaw){var pp=pRaw.split('-');if(pp.length>=2){var v=parseFloat(pp[0]);if(!isNaN(v)&&v>20&&v<60)f3=v;}}
+
+    var aRaw=iAgari>=0?row[iAgari]:'',l3=parseFloat(aRaw);
+    if(isNaN(l3)||l3<20||l3>60)l3=null;
+
+    var psRaw=iPass>=0?String(row[iPass]||'').trim():'',corner=null;
+    if(psRaw&&psRaw.indexOf('-')!==-1){
+      var pp2=psRaw.split('-'),last=parseFloat(pp2[pp2.length-1]);
+      if(!isNaN(last)&&last>=1&&last<=18)corner=last;
+    }
+
+    var fRaw=iFinish>=0?String(row[iFinish]||'').trim():'',fNum=parseInt(fRaw);
+
+    var dtRaw=iDate>=0?row[iDate]:'',dateStr='';
+    if(dtRaw&&!isNaN(dtRaw)&&parseInt(dtRaw)>40000){
+      var d=new Date(Math.round((parseFloat(dtRaw)-25569)*86400*1000));
+      dateStr=d.getFullYear()+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getDate().toString().padStart(2,'0');
+    } else { dateStr=String(dtRaw).trim(); }
+
+    rows.push({date:dateStr,race:iRace>=0?String(row[iRace]||'').trim():'',
+      venue:venue,surface:surface,dist:distNum,
+      track:iTrack>=0?String(row[iTrack]||'').trim():'',
+      finish:fNum,finishStr:fRaw,time:timeStr,f3:f3,l3:l3,corner:corner});
   }
-  var iDate   = col(['日付']);
-  var iKaichi = col(['開催']);
-  var iRace   = col(['レース名']);
-  var iDist   = col(['距離']);
-  var iTrack  = col(['馬場']);
-  var iFinish = col(['着順']);
-  var iPace   = col(['ペース']);
-  var iAgari  = col(['上り']);
-  var iPass   = col(['通過']);
-  var iTime   = col(['タイム']);
-
-  var rows = [];
-  for (var ri2 = headerRow+1; ri2 < sheet.length; ri2++) {
-    var row = sheet[ri2] || [];
-    // 空行・#VALUE!のみの行をスキップ
-    var rowFlat = row.join('').replace(/#VALUE!/g,'').trim();
-    if (!rowFlat) continue;
-
-    // タイムをシリアル値→文字列に変換
-    var rawTime = iTime>=0 ? row[iTime] : '';
-    var timeStr = '';
-    if (rawTime && !isNaN(rawTime) && parseFloat(rawTime) < 1) {
-      // Excelシリアル値（例: 0.00122...）→ 秒に変換
-      var totalSec = parseFloat(rawTime) * 86400;
-      var mins = Math.floor(totalSec / 60);
-      var secs = (totalSec - mins*60).toFixed(1);
-      timeStr = mins + ':' + (parseFloat(secs)<10?'0':'') + secs;
-    } else {
-      timeStr = String(rawTime).trim();
-    }
-
-    // 開催列から競馬場名を抽出（例: "2東京5" → "東京"）
-    var kaichiRaw = iKaichi>=0 ? String(row[iKaichi]||'').trim() : '';
-    var venue = kaichiRaw.replace(/^[0-9]+/, '').replace(/[0-9]+$/, '');
-
-    // 距離列から芝/ダートと距離数値を分離（例: "芝1800" → "芝","1800"）
-    var distRaw = iDist>=0 ? String(row[iDist]||'').trim() : '';
-    var surfaceMatch = distRaw.match(/^(芝|ダート|ダ)/);
-    var surface = surfaceMatch ? (surfaceMatch[1]==='ダ'?'ダート':surfaceMatch[1]) : '';
-    var distNum = distRaw.replace(/^(芝|ダート|ダ)/,'').trim();
-
-    // ペース前半
-    var paceRaw = iPace>=0 ? String(row[iPace]||'').trim() : '';
-    var f3 = null;
-    if (paceRaw) {
-      var pp = paceRaw.split('-');
-      if (pp.length>=2) { var v=parseFloat(pp[0]); if(!isNaN(v)&&v>20&&v<60) f3=v; }
-    }
-
-    // 上り
-    var agariRaw = iAgari>=0 ? row[iAgari] : '';
-    var l3 = parseFloat(agariRaw);
-    if (isNaN(l3)||l3<20||l3>60) l3=null;
-
-    // 通過（最終コーナー）
-    var passRaw = iPass>=0 ? String(row[iPass]||'').trim() : '';
-    var corner = null;
-    if (passRaw && passRaw.indexOf('-')!==-1) {
-      var pp2 = passRaw.split('-');
-      var last = parseFloat(pp2[pp2.length-1]);
-      if (!isNaN(last)&&last>=1&&last<=18) corner=last;
-    }
-
-    // 着順
-    var finishRaw = iFinish>=0 ? String(row[iFinish]||'').trim() : '';
-    var finishNum = parseInt(finishRaw);
-
-    // 日付
-    var dateRaw = iDate>=0 ? row[iDate] : '';
-    var dateStr = '';
-    if (dateRaw && !isNaN(dateRaw) && parseInt(dateRaw)>40000) {
-      // Excelシリアル値→日付
-      var d = new Date(Math.round((parseFloat(dateRaw)-25569)*86400*1000));
-      dateStr = d.getFullYear()+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getDate().toString().padStart(2,'0');
-    } else {
-      dateStr = String(dateRaw).trim();
-    }
-
-    rows.push({ date:dateStr, race:iRace>=0?String(row[iRace]||'').trim():'',
-      venue:venue, surface:surface, dist:distNum, track:iTrack>=0?String(row[iTrack]||'').trim():'',
-      finish:finishNum, finishStr:finishRaw, time:timeStr, f3:f3, l3:l3, corner:corner });
-  }
-  return { horseName:horseName, fatherName:fatherName, rows:rows };
+  return {horseName:horseName,fatherName:fatherName,rows:rows};
 }
 
-// ── 集計 ──
 function calcStats(rows) {
-  var recent20 = rows.slice(0, 20);
+  var r20=rows.slice(0,20);
+  function avg(arr){return arr.length?Math.round(arr.reduce(function(a,b){return a+b;},0)/arr.length*10)/10:null;}
+  var f3v=r20.map(function(r){return r.f3;}).filter(function(v){return v!==null;});
+  var l3v=r20.map(function(r){return r.l3;}).filter(function(v){return v!==null;});
+  var cv=r20.map(function(r){return r.corner;}).filter(function(v){return v!==null;});
 
-  // 前半3F平均
-  var f3vals = recent20.map(function(r){return r.f3;}).filter(function(v){return v!==null;});
-  var f3avg = f3vals.length ? Math.round(f3vals.reduce(function(a,b){return a+b;},0)/f3vals.length*10)/10 : null;
-
-  // 上り3F平均
-  var l3vals = recent20.map(function(r){return r.l3;}).filter(function(v){return v!==null;});
-  var l3avg = l3vals.length ? Math.round(l3vals.reduce(function(a,b){return a+b;},0)/l3vals.length*10)/10 : null;
-
-  // 最終コーナー平均
-  var corvals = recent20.map(function(r){return r.corner;}).filter(function(v){return v!==null;});
-  var coravg = corvals.length ? Math.round(corvals.reduce(function(a,b){return a+b;},0)/corvals.length*10)/10 : null;
-
-  // コース・距離別 最速タイム
-  // キー: 競馬場+芝/ダート+距離+馬場
-  var courseMap = {};
-  rows.forEach(function(r) {
-    if (!r.time || !r.venue || !r.dist) return;
-    // タイムを秒数に変換して比較
-    var sec = timeToSec(r.time);
-    if (sec === null) return;
-    var key = r.venue + '|' + r.surface + '|' + r.dist + 'm|' + r.track;
-    if (!courseMap[key] || sec < courseMap[key].sec) {
-      courseMap[key] = { sec:sec, time:r.time, l3:r.l3, finish:r.finish, finishStr:r.finishStr,
-        race:r.race, date:r.date, venue:r.venue, surface:r.surface, dist:r.dist, track:r.track };
+  var courseMap={};
+  rows.forEach(function(r){
+    if(!r.time||!r.venue||!r.dist)return;
+    var sec=timeToSec(r.time);if(sec===null)return;
+    var key=r.venue+'|'+r.surface+'|'+r.dist+'m|'+r.track;
+    if(!courseMap[key]||sec<courseMap[key].sec){
+      courseMap[key]={sec:sec,time:r.time,l3:r.l3,finish:r.finish,finishStr:r.finishStr,
+        race:r.race,date:r.date,venue:r.venue,surface:r.surface,dist:r.dist,track:r.track};
     }
   });
-
-  // キーでソート（競馬場→芝/ダート→距離→馬場）
-  var courseList = Object.keys(courseMap).sort().map(function(k){ return courseMap[k]; });
-
-  return { f3avg:f3avg, f3n:f3vals.length, l3avg:l3avg, l3n:l3vals.length,
-           coravg:coravg, corn:corvals.length, courseList:courseList };
+  var courseList=Object.keys(courseMap).sort().map(function(k){return courseMap[k];});
+  return {f3avg:avg(f3v),f3n:f3v.length,l3avg:avg(l3v),l3n:l3v.length,coravg:avg(cv),corn:cv.length,courseList:courseList};
 }
 
-function timeToSec(str) {
-  if (!str) return null;
-  var m = String(str).match(/^(\d+):(\d+\.?\d*)$/);
-  if (!m) return null;
-  return parseInt(m[1])*60 + parseFloat(m[2]);
+function timeToSec(str){
+  if(!str)return null;
+  var m=String(str).match(/^(\d+):(\d+\.?\d*)$/);
+  return m?parseInt(m[1])*60+parseFloat(m[2]):null;
 }
 
-// ── 表示 ──
-function setErr(msg) { var e=document.getElementById('err'); e.textContent=msg; e.classList.toggle('on',!!msg); }
+function setErr(msg){var e=document.getElementById('err');e.textContent=msg;e.classList.toggle('on',!!msg);}
+function finishCls(f){return f===1?'f1':f===2?'f2':f===3?'f3':'';}
+function fmtV(v,unit){return v!==null?v+'<span class="mcu">'+unit+'</span>':'<span style="font-size:13px;color:var(--tx3)">—</span>';}
 
-function fmtAvg(v, unit) {
-  return v !== null ? '<span style="font-size:22px;font-weight:700">' + v + '</span><span class="mcu">' + unit + '</span>' : '<span style="font-size:14px;color:var(--tx3)">データなし</span>';
-}
-
-function finishClass(f) {
-  if (f===1) return 'finish-1';
-  if (f===2) return 'finish-2';
-  if (f===3) return 'finish-3';
-  return '';
-}
-
-function doClear() {
-  excelData = null;
-  document.getElementById('file-input').value='';
-  document.getElementById('file-info').style.display='none';
-  document.getElementById('preview').style.display='none';
-  document.getElementById('result').style.display='none';
-  setErr('');
+function courseTblHTML(courseList, showHorseName, horseData) {
+  var head = '<thead><tr>' +
+    (showHorseName ? '<th>馬名</th>' : '') +
+    '<th>競馬場</th><th>芝/ダート</th><th>距離</th><th>馬場</th>' +
+    '<th>最速タイム</th><th>上り3F</th><th>着順</th><th>レース名</th><th>日付</th>' +
+    '</tr></thead>';
+  var body = '';
+  if (showHorseName) {
+    // 対比モード：全馬のリストをそのまま
+    horseData.forEach(function(d) {
+      var color = COLORS_HEX[d.horse.colorIdx];
+      var name = d.horse.horseName || ('馬'+(d.horse.colorIdx+1));
+      d.stats.courseList.forEach(function(c) {
+        body += '<tr>' +
+          '<td><span class="horse-tag" style="background:'+color+'">'+name+'</span></td>' +
+          '<td>'+(c.venue||'—')+'</td><td>'+(c.surface||'—')+'</td>' +
+          '<td style="text-align:right">'+(c.dist||'—')+'m</td><td>'+(c.track||'—')+'</td>' +
+          '<td style="text-align:right;font-weight:700">'+(c.time||'—')+'</td>' +
+          '<td style="text-align:right">'+(c.l3!==null?c.l3+'秒':'—')+'</td>' +
+          '<td style="text-align:center" class="'+finishCls(c.finish)+'">'+(c.finishStr||'—')+'着</td>' +
+          '<td style="font-size:11px;color:var(--tx2)">'+(c.race||'—')+'</td>' +
+          '<td style="font-size:11px;color:var(--tx3)">'+(c.date||'—')+'</td>' +
+          '</tr>';
+      });
+    });
+  } else {
+    // 1頭モード
+    courseList.forEach(function(c) {
+      body += '<tr>' +
+        '<td>'+(c.venue||'—')+'</td><td>'+(c.surface||'—')+'</td>' +
+        '<td style="text-align:right">'+(c.dist||'—')+'m</td><td>'+(c.track||'—')+'</td>' +
+        '<td style="text-align:right;font-weight:700">'+(c.time||'—')+'</td>' +
+        '<td style="text-align:right">'+(c.l3!==null?c.l3+'秒':'—')+'</td>' +
+        '<td style="text-align:center" class="'+finishCls(c.finish)+'">'+(c.finishStr||'—')+'着</td>' +
+        '<td style="font-size:11px;color:var(--tx2)">'+(c.race||'—')+'</td>' +
+        '<td style="font-size:11px;color:var(--tx3)">'+(c.date||'—')+'</td>' +
+        '</tr>';
+    });
+  }
+  if (!body) body = '<tr><td colspan="'+(showHorseName?10:9)+'" style="text-align:center;padding:16px;color:var(--tx3)">データなし</td></tr>';
+  return head + '<tbody>' + body + '</tbody>';
 }
 
 function doAnalyze() {
-  if (!excelData) { setErr('Excelファイルをアップロードしてください。'); return; }
+  var active = horses.map(function(h,i){return h?{horse:h,idx:i}:null;}).filter(Boolean);
+  if (!active.length) { setErr('Excelファイルをアップロードしてください。'); return; }
   setErr('');
 
-  var parsed = parseExcel(excelData);
-  if (!parsed.rows.length) {
-    setErr('成績データが見つかりませんでした。テンプレートのフォーマットを確認してください。');
-    return;
+  var statsList = active.map(function(d){ return {horse:d.horse, stats:calcStats(d.horse.rows)}; });
+  var isSingle = active.length === 1;
+
+  // モードバッジ
+  var badge = document.getElementById('mode-badge');
+  if (isSingle) {
+    badge.innerHTML = '<div class="mode-badge mode-single"><i class="ti ti-horse" aria-hidden="true"></i>1頭分析モード</div>';
+  } else {
+    badge.innerHTML = '<div class="mode-badge mode-compare"><i class="ti ti-arrows-diff" aria-hidden="true"></i>'+active.length+'頭 対比モード</div>';
   }
 
-  var stats = calcStats(parsed.rows);
+  document.getElementById('view-single').style.display = isSingle ? 'block' : 'none';
+  document.getElementById('view-compare').style.display = isSingle ? 'none' : 'block';
 
-  // 馬名・父馬名
-  document.getElementById('r-name').textContent = parsed.horseName || '（馬名未入力）';
-  document.getElementById('r-father').textContent = parsed.fatherName ? '父: ' + parsed.fatherName : '';
+  if (isSingle) {
+    // ── 1頭モード ──
+    var h = statsList[0].horse, st = statsList[0].stats;
+    document.getElementById('s-name').textContent = h.horseName || '（馬名未入力）';
+    document.getElementById('s-father').textContent = h.fatherName ? '父: '+h.fatherName : '';
+    document.getElementById('s-f3').innerHTML  = fmtV(st.f3avg,  '秒');
+    document.getElementById('s-f3n').textContent  = st.f3n  ? st.f3n+'レース分の平均'  : '';
+    document.getElementById('s-l3').innerHTML  = fmtV(st.l3avg,  '秒');
+    document.getElementById('s-l3n').textContent  = st.l3n  ? st.l3n+'レース分の平均'  : '';
+    document.getElementById('s-cor').innerHTML = fmtV(st.coravg, '番手');
+    document.getElementById('s-corn').textContent = st.corn ? st.corn+'レース分の平均' : '';
+    document.getElementById('s-course-tbl').innerHTML = courseTblHTML(st.courseList, false, null);
 
-  // 前半3F
-  document.getElementById('r-f3').innerHTML = fmtAvg(stats.f3avg, '秒');
-  document.getElementById('r-f3-n').textContent = stats.f3n ? stats.f3n + 'レース分の平均' : '';
-
-  // 上り3F
-  document.getElementById('r-l3').innerHTML = fmtAvg(stats.l3avg, '秒');
-  document.getElementById('r-l3-n').textContent = stats.l3n ? stats.l3n + 'レース分の平均' : '';
-
-  // 最終コーナー
-  document.getElementById('r-cor').innerHTML = fmtAvg(stats.coravg, '番手');
-  document.getElementById('r-cor-n').textContent = stats.corn ? stats.corn + 'レース分の平均' : '';
-
-  // コース別最速タイム
-  var tbody = document.getElementById('r-course');
-  if (stats.courseList.length) {
-    tbody.innerHTML = stats.courseList.map(function(c) {
-      var fc = finishClass(c.finish);
-      return '<tr>' +
-        '<td>' + (c.venue||'—') + '</td>' +
-        '<td>' + (c.surface||'—') + '</td>' +
-        '<td style="text-align:right">' + (c.dist||'—') + 'm</td>' +
-        '<td>' + (c.track||'—') + '</td>' +
-        '<td style="text-align:right;font-weight:600">' + (c.time||'—') + '</td>' +
-        '<td style="text-align:right">' + (c.l3!==null ? c.l3+'秒' : '—') + '</td>' +
-        '<td style="text-align:center" class="'+fc+'">' + (c.finishStr||'—') + '着</td>' +
-        '<td style="color:var(--tx2);font-size:12px">' + (c.race||'—') + '</td>' +
-        '<td style="color:var(--tx3);font-size:11px">' + (c.date||'—') + '</td>' +
-        '</tr>';
-    }).join('');
   } else {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--tx3);padding:16px">データなし</td></tr>';
+    // ── 対比モード ──
+    var metrics = [
+      {key:'f3avg', label:'前半3F 平均タイム', unit:'秒', nKey:'f3n', best:function(a,b){return a<b;}},
+      {key:'l3avg', label:'上り3F 平均タイム', unit:'秒', nKey:'l3n', best:function(a,b){return a<b;}},
+      {key:'coravg',label:'最終コーナー 平均位置', unit:'番手', nKey:'corn', best:function(a,b){return a<b;}},
+    ];
+
+    var hRow = '<tr><th style="min-width:130px">項目</th>';
+    statsList.forEach(function(d){
+      hRow += '<th colspan="2" style="border-left:2px solid '+COLORS_HEX[d.horse.colorIdx]+';font-size:12px;font-weight:700">' +
+        '<span style="color:'+COLORS_HEX[d.horse.colorIdx]+'">●</span> ' +
+        (d.horse.horseName||'馬'+(d.horse.colorIdx+1))+'</th>';
+    });
+    hRow += '</tr>';
+
+    var bodyRows = metrics.map(function(m){
+      var vals = statsList.map(function(d){return d.stats[m.key];}).filter(function(v){return v!==null;});
+      var best = vals.length ? vals.reduce(function(a,b){return m.best(a,b)?a:b;}) : null;
+      var bestCount = vals.filter(function(v){return v===best;}).length;
+      var row='<tr><td style="font-size:12px;color:var(--tx2)">'+m.label+'</td>';
+      statsList.forEach(function(d){
+        var v=d.stats[m.key], n=d.stats[m.nKey];
+        var isBest = v!==null&&best!==null&&v===best&&bestCount<vals.length;
+        row += '<td class="val'+(isBest?' val-best':'')+'" style="border-left:2px solid '+COLORS_HEX[d.horse.colorIdx]+'">' +
+          (v!==null?v+'<span style="font-size:11px;font-weight:400;color:var(--tx2);margin-left:2px">'+m.unit+'</span>':'<span style="color:var(--tx3)">—</span>') +
+          '</td><td class="sub">'+(n?n+'R':'')+'</td>';
+      });
+      row+='</tr>';
+      return row;
+    }).join('');
+
+    document.getElementById('cmp-tbl').innerHTML = '<thead>'+hRow+'</thead><tbody>'+bodyRows+'</tbody>';
+    document.getElementById('c-course-tbl').innerHTML = courseTblHTML(null, true, statsList);
   }
 
   document.getElementById('result').style.display = 'block';
-  document.getElementById('result').scrollIntoView({ behavior:'smooth', block:'start' });
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
+
+initSlots();
 </script>
 </body>
 </html>
+
 
