@@ -6,6 +6,7 @@
 <title>競走馬プロファイラー</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -16,7 +17,6 @@
   --rbg:#fcebeb;--rtx:#8c1f1f;
   --bbg:#e6f1fb;--btx:#0c447c;
   --abg:#faeeda;--atx:#633806;
-  --tbg:#e1f5ee;--ttx:#085041;
   --r:8px;--rl:12px;
 }
 @media(prefers-color-scheme:dark){:root{
@@ -27,40 +27,42 @@
   --rbg:#501313;--rtx:#f09595;
   --bbg:#042c53;--btx:#85b7eb;
   --abg:#412402;--atx:#fac775;
-  --tbg:#04342c;--ttx:#9fe1cb;
 }}
 body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif;font-size:14px;line-height:1.6;color:var(--tx);background:var(--bg3);min-height:100vh}
 .hdr{background:var(--bg);border-bottom:.5px solid var(--bd);padding:0 20px;height:50px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50}
 .logo{font-size:15px;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--tx)}
 .logo i{color:var(--tx2);font-size:18px}
-.tabs{display:flex;gap:2px;margin-left:16px}
-.tab{padding:5px 13px;border-radius:var(--r);border:none;background:transparent;color:var(--tx2);cursor:pointer;font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px;transition:background .15s;font-family:inherit}
-.tab i{font-size:14px}
-.tab.on{background:var(--bg2);color:var(--tx)}
-.tab:hover:not(.on){background:var(--bg2)}
-.main{max-width:860px;margin:0 auto;padding:20px 16px}
-.panel{display:none}.panel.on{display:block}
+.main{max-width:800px;margin:0 auto;padding:20px 16px}
 .card{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:.9rem 1.1rem;margin-bottom:.9rem}
 .slbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding-bottom:7px;border-bottom:.5px solid var(--bd);margin-bottom:11px}
-.flbl{font-size:12px;color:var(--tx2);margin-bottom:4px;display:flex;align-items:center;gap:3px}
-.flbl i{font-size:13px}
-.req{color:#e24b4a;margin-left:2px}
-.fgrp{margin-bottom:12px}.fgrp:last-child{margin-bottom:0}
-input[type=text]{width:100%;font-size:13px;padding:7px 10px;border:.5px solid var(--bd2);border-radius:var(--r);background:var(--bg);color:var(--tx);outline:none;transition:border-color .15s;font-family:inherit}
-input[type=text]:focus{border-color:var(--tx2)}
-input::placeholder{color:var(--tx3)}
-.fhint{font-size:11px;color:var(--tx3);margin-top:3px}
-.brow{display:flex;gap:7px;align-items:center;margin-top:.9rem}
-.btn{padding:8px 20px;font-size:13px;font-weight:500;border:.5px solid var(--bd2);border-radius:var(--r);background:var(--bg);color:var(--tx);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background .15s;font-family:inherit}
+.brow{display:flex;gap:7px;align-items:center;margin-top:.9rem;flex-wrap:wrap}
+.btn{padding:8px 22px;font-size:13px;font-weight:500;border:.5px solid var(--bd2);border-radius:var(--r);background:var(--bg);color:var(--tx);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background .15s;font-family:inherit}
 .btn:hover{background:var(--bg2)}.btn:active{transform:scale(.98)}.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
 .btng{background:transparent;border-color:var(--bd);color:var(--tx2)}.btng:hover{background:var(--bg2)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{animation:spin .9s linear infinite;display:inline-block}
 .sts{display:none;font-size:12px;color:var(--tx2);align-items:center;gap:6px;padding:8px 0}.sts.on{display:flex}
 .err{display:none;background:var(--rbg);border:.5px solid var(--bd);border-radius:var(--r);padding:.75rem 1rem;font-size:12px;color:var(--rtx);margin-bottom:.8rem}.err.on{display:block}
+/* アップロードゾーン */
+.upload-zone{border:2px dashed var(--bd2);border-radius:var(--rl);padding:28px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;background:var(--bg)}
+.upload-zone:hover,.upload-zone.drag{border-color:#378add;background:var(--bbg)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:32px;color:var(--tx3);margin-bottom:8px}
+.upload-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:4px}
+.upload-sub{font-size:11px;color:var(--tx3)}
+.file-selected{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--gbg);border-radius:var(--r);font-size:12px;color:var(--gtx);margin-top:8px}
+.file-selected i{font-size:16px}
+.dl-link{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--btx);text-decoration:none;padding:4px 10px;border:.5px solid var(--bd2);border-radius:var(--r);margin-top:6px;transition:background .15s}
+.dl-link:hover{background:var(--bbg)}
+/* プレビュー */
+.preview-wrap{overflow-x:auto;margin-top:8px}
+.preview-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.preview-tbl th{background:var(--bg3);color:var(--tx2);padding:4px 8px;border:.5px solid var(--bd);text-align:left;white-space:nowrap}
+.preview-tbl td{padding:3px 8px;border:.5px solid var(--bd);color:var(--tx);white-space:nowrap}
+.preview-tbl tr:nth-child(even) td{background:var(--bg2)}
+/* 結果 */
 .mg3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:.9rem}
-.mg4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:.9rem}
-@media(max-width:560px){.mg3{grid-template-columns:repeat(2,1fr)}.mg4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.mg3{grid-template-columns:repeat(2,1fr)}}
 .mc{background:var(--bg2);border-radius:var(--r);padding:.75rem .9rem}
 .mclb{font-size:10px;color:var(--tx3);margin-bottom:3px}
 .mcv{font-size:19px;font-weight:600;color:var(--tx)}
@@ -75,241 +77,159 @@ input::placeholder{color:var(--tx3)}
 .dot{width:5px;height:5px;border-radius:50%;margin-top:6px;flex-shrink:0}
 .dg{background:#639922}.dr{background:#e24b4a}.db{background:#378add}.da{background:#ba7517}
 .hbar{display:flex;align-items:baseline;gap:8px;padding-bottom:.9rem;border-bottom:.5px solid var(--bd);margin-bottom:.9rem;flex-wrap:wrap}
-.hn{font-size:20px;font-weight:700}
+.hn{font-size:22px;font-weight:700}
 .hs{font-size:12px;color:var(--tx2)}
-.bdg{font-size:10px;padding:2px 7px;border-radius:100px;font-weight:500;margin-left:3px}
-.bdgg{background:var(--gbg);color:var(--gtx)}.bdgr{background:var(--rbg);color:var(--rtx)}.bdgb{background:var(--bbg);color:var(--btx)}.bdga{background:var(--abg);color:var(--atx)}
-.sdiv{font-size:13px;font-weight:600;color:var(--tx);padding:.9rem 0 .4rem;border-bottom:.5px solid var(--bd);margin-bottom:.9rem;display:flex;align-items:center;gap:5px}
-.sdiv i{font-size:15px;color:var(--tx3)}
-.ftrack{background:var(--bg2);border-radius:var(--rl);padding:14px;margin-bottom:.9rem}
-.ftlbl{font-size:10px;color:var(--tx3);margin-bottom:8px;letter-spacing:.08em;text-transform:uppercase}
-.frow{display:flex;align-items:center;gap:5px;margin-bottom:7px;flex-wrap:wrap}
-.frow:last-child{margin-bottom:0}
-.fplbl{font-size:10px;color:var(--tx3);width:40px;flex-shrink:0;text-align:right}
-.chip{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:500;border:.5px solid var(--bd);background:var(--bg);white-space:nowrap;margin:2px}
-.chip .cn{font-size:9px;border-radius:3px;padding:1px 3px;font-weight:700}
-.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:7px;margin-bottom:.9rem}
-.cchip{background:var(--bg2);border-radius:var(--r);padding:7px 9px}
-.cchip .ccn{font-size:11px;font-weight:600;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.cchip .ccp{font-size:10px;color:var(--tx3)}
-.cchip .ccp span{font-size:13px;font-weight:700;color:var(--tx2)}
-.hclist{display:flex;flex-direction:column;gap:8px;margin-bottom:.9rem}
-.hc{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);overflow:hidden}
-.hch{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer;user-select:none;transition:background .15s}
-.hch:hover{background:var(--bg2)}
-.hcnum{width:26px;height:26px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
-.hcname{font-size:13px;font-weight:600;flex:1}
-.hcmeta{font-size:11px;color:var(--tx2)}
-.hcchev{font-size:15px;color:var(--tx3);transition:transform .2s}
-.hcchev.op{transform:rotate(180deg)}
-.hcb{display:none;padding:0 12px 12px;border-top:.5px solid var(--bd)}
-.hcb.op{display:block}
-.hcm3{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0}
-@media(max-width:480px){.hcm3{grid-template-columns:1fr 1fr}}
-.hcmc{background:var(--bg2);border-radius:var(--r);padding:.65rem .85rem}
-.hcmclb{font-size:10px;color:var(--tx3);margin-bottom:2px}
-.hcmcv{font-size:15px;font-weight:600;color:var(--tx)}
-.hc2{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px}
-.hcsl{font-size:10px;color:var(--tx3);margin-bottom:4px;letter-spacing:.07em;text-transform:uppercase}
-.hcptl{list-style:none}
-.hcptl li{font-size:11px;padding:3px 0;border-bottom:.5px solid var(--bd);display:flex;align-items:flex-start;gap:5px}
-.hcptl li:last-child{border-bottom:none}
-.prog{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:1rem 1.1rem;margin-bottom:.9rem;display:none}.prog.on{display:block}
-.progt{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:5px}
-.progbo{background:var(--bg3);border-radius:4px;height:5px;margin-bottom:10px;overflow:hidden}
-.progbi{background:#378add;height:100%;border-radius:4px;transition:width .3s}
-.progl{font-size:11px;color:var(--tx2);max-height:80px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
-.pli{display:flex;align-items:center;gap:4px}
-.pli.done{color:var(--gtx)}.pli.run{color:var(--tx)}.pli.wait{color:var(--tx3)}
 .snote{font-size:11px;color:var(--tx3);padding-top:.9rem;border-top:.5px solid var(--bd);display:flex;align-items:flex-start;gap:4px;margin-top:.9rem;line-height:1.5}
-.snote a{color:var(--btx)}
 </style>
 </head>
 <body>
 
 <header class="hdr">
-  <div class="logo"><i class="ti ti-trophy"></i>競走馬プロファイラー</div>
-  <nav class="tabs">
-    <button class="tab on" id="tab-s" onclick="sw('s')"><i class="ti ti-horse"></i>1頭検索</button>
-    <button class="tab" id="tab-r" onclick="sw('r')"><i class="ti ti-list-check"></i>全頭分析</button>
-  </nav>
+  <div class="logo"><i class="ti ti-trophy" aria-hidden="true"></i>競走馬プロファイラー</div>
 </header>
 
 <main class="main">
 
-<!-- ── 1頭検索 ── -->
-<div class="panel on" id="pnl-s">
   <div class="card">
-    <p class="slbl">基本情報</p>
-    <div class="fgrp">
-      <label class="flbl"><i class="ti ti-tag"></i>馬名<span class="req">*</span></label>
-      <input type="text" id="s-name" placeholder="例：イクイノックス">
+    <p class="slbl">Excelファイルをアップロード</p>
+    <div class="upload-zone" id="zone" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onDrop(event)">
+      <input type="file" accept=".xlsx,.xls" onchange="onFile(event)" id="file-input">
+      <div class="upload-icon"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i></div>
+      <div class="upload-title">Excelファイルをドラッグ＆ドロップ</div>
+      <div class="upload-sub">または クリックしてファイルを選択（.xlsx / .xls）</div>
+    </div>
+    <div id="file-info" style="display:none" class="file-selected">
+      <i class="ti ti-circle-check" aria-hidden="true"></i><span id="file-name"></span>
+    </div>
+    <p style="font-size:11px;color:var(--tx3);margin-top:8px">
+      テンプレートをダウンロードして使用してください →
+      <a href="keiba_1頭検索_テンプレート.xlsx" download class="dl-link"><i class="ti ti-download" aria-hidden="true"></i>テンプレートDL</a>
+    </p>
+    <div id="preview" style="display:none">
+      <p class="slbl" style="margin-top:.8rem">読み込んだデータのプレビュー（先頭5行）</p>
+      <div class="preview-wrap"><table class="preview-tbl" id="ptbl"></table></div>
     </div>
   </div>
-  <div class="card">
-    <p class="slbl">データソース URL（省略可）</p>
-    <div class="fgrp">
-      <label class="flbl"><i class="ti ti-link"></i>ネット競馬 URL</label>
-      <input type="text" id="s-u1" placeholder="https://db.netkeiba.com/horse/...">
-      <p class="fhint">netkeiba / 競馬道 / JBIS などの成績ページ</p>
-    </div>
-    <div class="fgrp">
-      <label class="flbl"><i class="ti ti-link"></i>JRA 公式 URL</label>
-      <input type="text" id="s-u2" placeholder="https://www.jra.go.jp/...">
-    </div>
-  </div>
-  <div class="err" id="s-err"></div>
-  <div class="brow">
-    <button class="btn" id="s-btn" onclick="doSingle()"><i class="ti ti-chart-line"></i>分析する</button>
-    <button class="btn btng" onclick="clrS()">クリア</button>
-  </div>
-  <div class="sts" id="s-sts"><i class="ti ti-loader-2 spin"></i><span id="s-stx">分析中...</span></div>
 
-  <div id="s-res" style="display:none;margin-top:1.3rem">
-    <div class="hbar"><span class="hn" id="s-rn"></span><span class="hs" id="s-rm"></span></div>
-    <div class="card" id="s-rsum" style="font-size:13px;line-height:1.7"></div>
+  <div class="err" id="err"></div>
+  <div class="brow">
+    <button class="btn" id="btn-analyze" onclick="doAnalyze()"><i class="ti ti-chart-line" aria-hidden="true"></i>分析する</button>
+    <button class="btn btng" onclick="doClear()">クリア</button>
+  </div>
+  <div class="sts" id="sts"><i class="ti ti-loader-2 spin" aria-hidden="true"></i><span id="stx">分析中...</span></div>
+
+  <div id="result" style="display:none;margin-top:1.4rem">
+    <div class="hbar">
+      <span class="hn" id="r-name"></span>
+      <span class="hs" id="r-meta"></span>
+    </div>
+    <div class="card" id="r-summary" style="font-size:13px;line-height:1.8"></div>
     <div class="mg3">
-      <div class="mc"><div class="mclb">前半3F 平均</div><div class="mcv" id="s-rf3">—</div></div>
-      <div class="mc"><div class="mclb">上り3F 平均</div><div class="mcv" id="s-rl3">—</div></div>
-      <div class="mc"><div class="mclb">最終コーナー 平均位置</div><div class="mcv" id="s-rc">—</div></div>
+      <div class="mc"><div class="mclb">前半3F 平均</div><div class="mcv" id="r-f3">—</div></div>
+      <div class="mc"><div class="mclb">上り3F 平均</div><div class="mcv" id="r-l3">—</div></div>
+      <div class="mc"><div class="mclb">最終コーナー 平均位置</div><div class="mcv" id="r-cor">—</div></div>
     </div>
     <div class="g2">
-      <div class="card"><div class="chard" style="color:var(--gtx)"><i class="ti ti-thumb-up"></i>長所</div><ul class="ptl" id="s-rstr"></ul></div>
-      <div class="card"><div class="chard" style="color:var(--rtx)"><i class="ti ti-thumb-down"></i>短所</div><ul class="ptl" id="s-rwk"></ul></div>
+      <div class="card">
+        <div class="chard" style="color:var(--gtx)"><i class="ti ti-thumb-up" aria-hidden="true"></i>長所</div>
+        <ul class="ptl" id="r-str"></ul>
+      </div>
+      <div class="card">
+        <div class="chard" style="color:var(--rtx)"><i class="ti ti-thumb-down" aria-hidden="true"></i>短所</div>
+        <ul class="ptl" id="r-wk"></ul>
+      </div>
     </div>
     <div class="g2">
-      <div class="card"><div class="chard" style="color:var(--btx)"><i class="ti ti-circle-check"></i>得意な条件</div><ul class="ptl" id="s-rg"></ul></div>
-      <div class="card"><div class="chard" style="color:var(--atx)"><i class="ti ti-circle-x"></i>不得意な条件</div><ul class="ptl" id="s-rb"></ul></div>
+      <div class="card">
+        <div class="chard" style="color:var(--btx)"><i class="ti ti-circle-check" aria-hidden="true"></i>得意な条件</div>
+        <ul class="ptl" id="r-good"></ul>
+      </div>
+      <div class="card">
+        <div class="chard" style="color:var(--atx)"><i class="ti ti-circle-x" aria-hidden="true"></i>不得意な条件</div>
+        <ul class="ptl" id="r-bad"></ul>
+      </div>
     </div>
     <div class="card">
-      <div class="chard"><i class="ti ti-chart-radar"></i>能力レーダー</div>
-      <div style="position:relative;height:220px"><canvas id="s-radar" role="img" aria-label="能力レーダーチャート">スピード・スタミナ・パワー・根性・安定感・適応力</canvas></div>
+      <div class="chard"><i class="ti ti-chart-radar" aria-hidden="true"></i>能力レーダー</div>
+      <div style="position:relative;height:230px">
+        <canvas id="radar-canvas" role="img" aria-label="競走馬能力レーダーチャート">スピード・スタミナ・パワー・根性・安定感・適応力</canvas>
+      </div>
     </div>
-    <p class="snote"><i class="ti ti-info-circle"></i><span id="s-rsrc">AIによるデータ解釈。予想の参考情報としてご活用ください。</span></p>
+    <p class="snote"><i class="ti ti-info-circle" aria-hidden="true"></i>アップロードされたExcelデータをAIが分析した結果です。予想の参考情報としてご活用ください。</p>
   </div>
-</div>
-
-<!-- ── 全頭分析 ── -->
-<div class="panel" id="pnl-r">
-  <div class="card">
-    <p class="slbl">出馬表ページ</p>
-    <div class="fgrp">
-      <label class="flbl"><i class="ti ti-link"></i>出馬表 URL<span class="req">*</span></label>
-      <input type="text" id="r-url" placeholder="https://race.netkeiba.com/race/shutuba.html?race_id=...">
-      <p class="fhint">netkeiba・JRA・競馬道などの出馬表（出走確定馬一覧）ページのURL</p>
-    </div>
-    <div class="fgrp">
-      <label class="flbl"><i class="ti ti-notes"></i>レース名・距離・馬場（補足）</label>
-      <input type="text" id="r-info" placeholder="例：2025年 宝塚記念 芝2200m 良">
-      <p class="fhint">URLから取得できない場合の補足として使用</p>
-    </div>
-  </div>
-  <div class="err" id="r-err"></div>
-  <div class="brow">
-    <button class="btn" id="r-btn" onclick="doRace()"><i class="ti ti-rocket"></i>全頭分析スタート</button>
-    <button class="btn btng" onclick="clrR()">クリア</button>
-  </div>
-  <div class="sts" id="r-sts"><i class="ti ti-loader-2 spin"></i><span id="r-stx">取得中...</span></div>
-
-  <div class="prog" id="r-prog">
-    <div class="progt"><i class="ti ti-loader-2 spin"></i>各馬を分析中...（1頭ごとに3秒待機・レート制限対策済み）</div>
-    <div class="progbo"><div class="progbi" id="r-pb" style="width:0%"></div></div>
-    <div style="font-size:11px;color:var(--tx2);margin-bottom:6px;min-height:16px" id="r-stx-prog"></div>
-    <div class="progl" id="r-pl"></div>
-  </div>
-
-  <div id="r-res" style="display:none;margin-top:1.3rem">
-    <div class="sdiv"><i class="ti ti-flag"></i>レース概要</div>
-    <div class="card" id="r-rsum" style="font-size:13px;line-height:1.7;margin-bottom:.9rem"></div>
-
-    <div class="sdiv"><i class="ti ti-stopwatch"></i>ペース・タイム予測</div>
-    <div class="mg4">
-      <div class="mc"><div class="mclb">想定ペース</div><div class="mcv" id="r-pace" style="font-size:15px">—</div></div>
-      <div class="mc"><div class="mclb">前半3F 想定</div><div class="mcv" id="r-f3">—</div></div>
-      <div class="mc"><div class="mclb">上り3F 想定</div><div class="mcv" id="r-l3">—</div></div>
-      <div class="mc"><div class="mclb">想定勝ちタイム</div><div class="mcv" id="r-wt" style="font-size:15px">—</div></div>
-    </div>
-    <div class="card" id="r-pdesc" style="font-size:12px;line-height:1.7;color:var(--tx2);margin-bottom:.9rem"></div>
-
-    <div class="sdiv"><i class="ti ti-layout-list"></i>スタート〜道中 隊列予想</div>
-    <div class="ftrack">
-      <div class="ftlbl">先頭 ──────────── 後方</div>
-      <div id="r-frows"></div>
-    </div>
-
-    <div class="sdiv"><i class="ti ti-corner-down-right"></i>4コーナー 位置取り予想</div>
-    <div class="cgrid" id="r-c4"></div>
-
-    <div class="sdiv"><i class="ti ti-horse"></i>各馬の個別分析</div>
-    <div class="hclist" id="r-hlist"></div>
-
-    <p class="snote"><i class="ti ti-info-circle"></i><span id="r-src">AIによるデータ解釈。予想の参考情報としてご活用ください。</span></p>
-  </div>
-</div>
 
 </main>
 
 <script>
-// APIエンドポイント（同一オリジンのサーバーレス関数）
 var API_ENDPOINT = '/api/claude';
+var excelData = null;
+var radarInst = null;
 
-var sRdr = null, rHorses = [], drawnR = {};
+// ── ファイル読み込み ──
+function onDrag(e, over) {
+  e.preventDefault();
+  document.getElementById('zone').classList.toggle('drag', over);
+}
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('zone').classList.remove('drag');
+  var f = e.dataTransfer.files[0];
+  if (f) readExcel(f);
+}
+function onFile(e) {
+  var f = e.target.files[0];
+  if (f) readExcel(f);
+}
 
-// ── レート制限対策ユーティリティ ──
+function readExcel(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var wb = XLSX.read(e.target.result, { type: 'array' });
+      var data = {};
+      wb.SheetNames.forEach(function(name) {
+        data[name] = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: '' });
+      });
+      excelData = data;
+      showPreview(data);
+      document.getElementById('file-info').style.display = 'flex';
+      document.getElementById('file-name').textContent = file.name;
+      setErr('');
+    } catch(err) {
+      setErr('Excelの読み込みに失敗しました: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function showPreview(data) {
+  var sheet = data[Object.keys(data)[0]] || [];
+  var tbl = document.getElementById('ptbl');
+  tbl.innerHTML = sheet.slice(0, 5).map(function(row, ri) {
+    var tag = ri === 0 ? 'th' : 'td';
+    return '<tr>' + row.slice(0, 12).map(function(cell) {
+      return '<' + tag + '>' + String(cell).slice(0, 18) + '</' + tag + '>';
+    }).join('') + '</tr>';
+  }).join('');
+  document.getElementById('preview').style.display = 'block';
+}
+
+function excelToText(data) {
+  var lines = [];
+  Object.keys(data).forEach(function(name) {
+    lines.push('=== シート: ' + name + ' ===');
+    data[name].forEach(function(row) {
+      var cells = row.filter(function(c) { return String(c).trim() !== ''; });
+      if (cells.length > 0) lines.push(row.join('\t'));
+    });
+  });
+  return lines.join('\n');
+}
+
+// ── API ──
 function sleep(ms) { return new Promise(function(r){ setTimeout(r, ms); }); }
 
-async function sleepWithMsg(ms, msgEl) {
-  var secs = Math.ceil(ms / 1000);
-  for (var i = secs; i > 0; i--) {
-    if (msgEl) msgEl.textContent = 'レート制限のため ' + i + '秒待機中...';
-    await sleep(1000);
-  }
-  if (msgEl) msgEl.textContent = '';
-}
-
-// リトライ付きAPI呼び出し（最大3回）
-async function apiWithRetry(sys, usr, retries, statusMsgEl) {
-  retries = retries || 3;
-  for (var attempt = 0; attempt < retries; attempt++) {
-    try {
-      return await api(sys, usr);
-    } catch(e) {
-      var isRateLimit = e.message && (
-        e.message.indexOf('rate limit') !== -1 ||
-        e.message.indexOf('rate_limit') !== -1 ||
-        e.message.indexOf('429') !== -1 ||
-        e.message.indexOf('tokens per minute') !== -1
-      );
-      if (isRateLimit && attempt < retries - 1) {
-        var waitSec = (attempt + 1) * 15;
-        await sleepWithMsg(waitSec * 1000, statusMsgEl);
-      } else {
-        throw e;
-      }
-    }
-  }
-}
-
-function sw(id) {
-  ['s','r'].forEach(function(x) {
-    document.getElementById('pnl-'+x).classList.toggle('on', x===id);
-    document.getElementById('tab-'+x).classList.toggle('on', x===id);
-  });
-}
-function setSts(id, msg) {
-  var e = document.getElementById(id+'-sts');
-  e.classList.toggle('on', !!msg);
-  if (msg) document.getElementById(id+'-stx').textContent = msg;
-}
-function setErr(id, msg) {
-  var e = document.getElementById(id+'-err');
-  e.textContent = msg;
-  e.classList.toggle('on', !!msg);
-}
-function li(t, c) { return '<li><span class="dot '+c+'"></span><span>'+t+'</span></li>'; }
-function fmtT(v) { return v ? v+'<span class="mcu">秒</span>' : '<span style="font-size:11px;color:var(--tx3)">データなし</span>'; }
-
-async function api(sys, usr) {
+async function callApi(sys, usr) {
   var r = await fetch(API_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -321,314 +241,119 @@ async function api(sys, usr) {
     })
   });
   if (!r.ok) {
-    var errData = await r.json().catch(function() { return {}; });
-    var errMsg = (errData.error && errData.error.message) || JSON.stringify(errData) || 'API ' + r.status;
-    throw new Error(errMsg);
+    var ed = await r.json().catch(function(){ return {}; });
+    throw new Error((ed.error && ed.error.message) || 'API ' + r.status);
   }
   var d = await r.json();
-
-  // すべてのtextブロックを結合（tool_useが混在しても対応）
-  var txt = '';
-  if (d.content && Array.isArray(d.content)) {
-    txt = d.content
-      .filter(function(b) { return b.type === 'text'; })
-      .map(function(b) { return b.text || ''; })
-      .join('\n');
-  }
-
-  // JSON抽出（コードブロック・前置きテキスト・後置きを除去）
-  var cleaned = txt.replace(/```json/g, '').replace(/```/g, '').trim();
-
-  // {...} の最も外側のJSONを抽出
-  var start = cleaned.indexOf('{');
-  var end = cleaned.lastIndexOf('}');
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error('AIがJSONを返しませんでした。もう一度お試しください。（受信: ' + cleaned.slice(0, 80) + '）');
-  }
-  var jsonStr = cleaned.slice(start, end + 1);
-  try {
-    return JSON.parse(jsonStr);
-  } catch(parseErr) {
-    throw new Error('JSON解析エラー: ' + parseErr.message + '（内容: ' + jsonStr.slice(0, 80) + '）');
-  }
+  var txt = (d.content || []).filter(function(b){ return b.type==='text'; }).map(function(b){ return b.text||''; }).join('\n');
+  var cleaned = txt.replace(/```json/g,'').replace(/```/g,'').trim();
+  var s = cleaned.indexOf('{'), e = cleaned.lastIndexOf('}');
+  if (s === -1 || e <= s) throw new Error('AIがJSONを返しませんでした。もう一度お試しください。');
+  try { return JSON.parse(cleaned.slice(s, e+1)); }
+  catch(pe) { throw new Error('JSON解析エラー: ' + pe.message); }
 }
 
-function radar(cid, labels, vals, inst) {
-  if (inst) inst.destroy();
-  var dk = matchMedia('(prefers-color-scheme:dark)').matches;
-  var tc = dk ? 'rgba(255,255,255,.5)' : 'rgba(0,0,0,.4)';
-  var gc = dk ? 'rgba(255,255,255,.09)' : 'rgba(0,0,0,.07)';
-  return new Chart(document.getElementById(cid), {
-    type: 'radar',
-    data: { labels: labels, datasets: [{ label: '能力', data: vals, fill: true,
-      backgroundColor: dk ? 'rgba(55,138,221,.18)' : 'rgba(55,138,221,.12)',
-      borderColor: '#378add', pointBackgroundColor: '#378add', pointRadius: 3, borderWidth: 1.5 }] },
-    options: { responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: { r: { min: 0, max: 10, ticks: { display: false },
-        grid: { color: gc }, angleLines: { color: gc },
-        pointLabels: { font: { size: 10 }, color: tc } } } }
-  });
+// ── 分析 ──
+function setErr(msg) { var e=document.getElementById('err'); e.textContent=msg; e.classList.toggle('on',!!msg); }
+function setSts(msg) { var e=document.getElementById('sts'); e.classList.toggle('on',!!msg); if(msg) document.getElementById('stx').textContent=msg; }
+function li(t, c) { return '<li><span class="dot '+c+'"></span><span>'+t+'</span></li>'; }
+function fmtT(v) { return v ? v+'<span class="mcu">秒</span>' : '<span style="font-size:11px;color:var(--tx3)">データなし</span>'; }
+
+function doClear() {
+  excelData = null;
+  document.getElementById('file-input').value = '';
+  document.getElementById('file-info').style.display = 'none';
+  document.getElementById('preview').style.display = 'none';
+  document.getElementById('result').style.display = 'none';
+  if (radarInst) { radarInst.destroy(); radarInst = null; }
+  setErr(''); setSts('');
 }
 
-// ── 1頭検索 ──
-function clrS() {
-  ['s-name','s-u1','s-u2'].forEach(function(id) { document.getElementById(id).value = ''; });
-  document.getElementById('s-res').style.display = 'none';
-  setErr('s',''); setSts('s','');
-}
+async function doAnalyze() {
+  if (!excelData) { setErr('Excelファイルをアップロードしてください。'); return; }
+  setErr('');
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('btn-analyze').disabled = true;
 
-async function doSingle() {
-  var name = document.getElementById('s-name').value.trim();
-  var u1 = document.getElementById('s-u1').value.trim();
-  var u2 = document.getElementById('s-u2').value.trim();
-  if (!name) { setErr('s','馬名を入力してください。'); return; }
-  setErr('s',''); document.getElementById('s-res').style.display = 'none';
-  document.getElementById('s-btn').disabled = true;
+  var sys = '競馬専門アナリストとして、提供されたExcelデータ（タブ区切りテキスト）をもとに競走馬を分析してください。\n' +
+    '【重要】返答は必ずJSON形式のみ。前置き・説明文・コードブロック不要。最初の文字が{で最後の文字が}になるように返してください。\n' +
+    '{\n' +
+    '  "horseName": "馬名（カタカナ）",\n' +
+    '  "horseMeta": "父馬名・調教師など1行の補足情報",\n' +
+    '  "summary": "Excelの成績データに基づく総合評価（2〜3文）",\n' +
+    '  "firstThreeF": "成績一覧の「ペース」列の前半タイム平均（数値のみ、例: 35.4）。不明はnull",\n' +
+    '  "lastThreeF": "成績一覧の「上り」列の平均（数値のみ、例: 33.8）。不明はnull",\n' +
+    '  "cornerPosition": "成績一覧の「通過」列の最終コーナー位置の平均（数値のみ、例: 6.2）。不明はnull",\n' +
+    '  "strengths": ["長所1", "長所2", "長所3"],\n' +
+    '  "weaknesses": ["短所1", "短所2"],\n' +
+    '  "goodConditions": ["得意条件1（距離・馬場・コース・展開など具体的に）", "得意条件2", "得意条件3"],\n' +
+    '  "badConditions": ["不得意条件1", "不得意条件2"],\n' +
+    '  "radar": { "labels": ["スピード","スタミナ","パワー","根性","安定感","適応力"], "values": [7,8,6,9,7,5] }\n' +
+    '}';
 
-  var sys = '競馬専門アナリストとして競走馬を分析してください。【重要】返答は必ずJSON形式のみ。前置き・説明文・```コードブロック・改行コメントは一切不要。最初の文字が{で最後の文字が}になるように返してください。\n' +
-    '{"horseName":"馬名(カタカナ)","horseMeta":"性齢・調教師など1行","summary":"総合評価2〜3文",' +
-    '"firstThreeF":"前半3F平均タイム数値 例35.8 不明はnull","lastThreeF":"上り3F平均タイム数値 例34.2 不明はnull",' +
-    '"cornerPosition":"最終コーナー平均位置数値 例3.2 不明はnull",' +
-    '"strengths":["長所1","長所2","長所3"],"weaknesses":["短所1","短所2"],' +
-    '"goodConditions":["得意条件1","得意条件2","得意条件3"],"badConditions":["不得意条件1","不得意条件2"],' +
-    '"radar":{"labels":["スピード","スタミナ","パワー","根性","安定感","適応力"],"values":[7,8,6,9,7,5]}}\n' +
-    'URLにアクセスして成績表から数値を抽出・平均算出。不可なら知識から推定してJSONを必ず返す。';
-
-  var urls = [];
-  if (u1) urls.push('ネット競馬URL: ' + u1);
-  if (u2) urls.push('JRA公式URL: ' + u2);
-  var usr = '馬名: ' + name + '\n' + (urls.join('\n') || '(URLなし)') + '\n成績ページから前半3F・上り3F・最終コーナー位置取り平均を算出し、長所・短所・得意/不得意条件を分析してください。';
+  var usr = '以下のExcelデータを分析してください。\n\n' +
+    '【分析の手順】\n' +
+    '1. シート上部の「馬名」「父馬名」を確認する\n' +
+    '2. 成績一覧の各列（距離・馬場・着順・タイム・ペース・上り・通過・備考など）を読み取る\n' +
+    '3. ペース列（例: 35.4-33.6）の前半部分の平均を firstThreeF として算出する\n' +
+    '4. 上り列の平均を lastThreeF として算出する\n' +
+    '5. 通過列（例: 8-9-9 または 16-17-17-13）の最終数字の平均を cornerPosition として算出する\n' +
+    '6. 着順・距離・馬場・コースの傾向から長所・短所・得意/不得意条件を分析する\n\n' +
+    '【Excelデータ】\n' + excelToText(excelData);
 
   try {
-    setSts('s', 'データを取得・分析中...');
-    var d = await api(sys, usr);
-    setSts('s', '');
-    document.getElementById('s-rn').textContent = d.horseName || '—';
-    document.getElementById('s-rm').textContent = d.horseMeta || '';
-    document.getElementById('s-rsum').innerHTML = d.summary || '';
-    document.getElementById('s-rf3').innerHTML = fmtT(d.firstThreeF);
-    document.getElementById('s-rl3').innerHTML = fmtT(d.lastThreeF);
-    document.getElementById('s-rc').innerHTML = d.cornerPosition
+    setSts('Excelデータを分析中...');
+    var d = await callApi(sys, usr);
+    setSts('');
+
+    document.getElementById('r-name').textContent = d.horseName || '—';
+    document.getElementById('r-meta').textContent = d.horseMeta || '';
+    document.getElementById('r-summary').innerHTML = d.summary || '';
+    document.getElementById('r-f3').innerHTML = fmtT(d.firstThreeF);
+    document.getElementById('r-l3').innerHTML = fmtT(d.lastThreeF);
+    document.getElementById('r-cor').innerHTML = d.cornerPosition
       ? d.cornerPosition + '<span class="mcu">番手</span>'
       : '<span style="font-size:11px;color:var(--tx3)">データなし</span>';
-    document.getElementById('s-rstr').innerHTML = (d.strengths||[]).map(function(s){return li(s,'dg');}).join('');
-    document.getElementById('s-rwk').innerHTML  = (d.weaknesses||[]).map(function(s){return li(s,'dr');}).join('');
-    document.getElementById('s-rg').innerHTML   = (d.goodConditions||[]).map(function(s){return li(s,'db');}).join('');
-    document.getElementById('s-rb').innerHTML   = (d.badConditions||[]).map(function(s){return li(s,'da');}).join('');
-    sRdr = radar('s-radar', d.radar && d.radar.labels || [], d.radar && d.radar.values || [], sRdr);
-    var srcs = [];
-    if (u1) srcs.push('<a href="'+u1+'" target="_blank" rel="noopener">ネット競馬</a>');
-    if (u2) srcs.push('<a href="'+u2+'" target="_blank" rel="noopener">JRA公式</a>');
-    document.getElementById('s-rsrc').innerHTML = srcs.length
-      ? '分析元: ' + srcs.join(' / ') + ' ／ AIによるデータ解釈。参考情報としてご活用ください。'
-      : 'AIによるデータ解釈。予想の参考情報としてご活用ください。';
-    document.getElementById('s-res').style.display = 'block';
-  } catch(e) {
-    setSts('s',''); setErr('s','エラー: ' + e.message);
-  } finally {
-    document.getElementById('s-btn').disabled = false;
-  }
-}
+    document.getElementById('r-str').innerHTML  = (d.strengths||[]).map(function(s){return li(s,'dg');}).join('');
+    document.getElementById('r-wk').innerHTML   = (d.weaknesses||[]).map(function(s){return li(s,'dr');}).join('');
+    document.getElementById('r-good').innerHTML = (d.goodConditions||[]).map(function(s){return li(s,'db');}).join('');
+    document.getElementById('r-bad').innerHTML  = (d.badConditions||[]).map(function(s){return li(s,'da');}).join('');
 
-// ── 全頭分析 ──
-function clrR() {
-  ['r-url','r-info'].forEach(function(id) { document.getElementById(id).value = ''; });
-  document.getElementById('r-res').style.display = 'none';
-  document.getElementById('r-prog').classList.remove('on');
-  setErr('r',''); setSts('r',''); rHorses = []; drawnR = {};
-}
-
-async function doRace() {
-  var url  = document.getElementById('r-url').value.trim();
-  var info = document.getElementById('r-info').value.trim();
-  if (!url) { setErr('r','出馬表URLを入力してください。'); return; }
-  setErr('r','');
-  document.getElementById('r-res').style.display = 'none';
-  document.getElementById('r-prog').classList.remove('on');
-  document.getElementById('r-btn').disabled = true;
-  rHorses = []; drawnR = {};
-
-  var eSys = '競馬専門アナリストとして出馬表ページから出走馬リストを取得してください。【重要】返答は必ずJSON形式のみ。前置き・説明文・```コードブロック不要。最初の文字が{で最後の文字が}になるように返してください。\n' +
-    '{"raceName":"レース名","raceInfo":"日程・競馬場・距離・芝/ダート・馬場など","horses":[{"num":1,"name":"馬名カタカナ","jockey":"騎手名","trainer":"調教師名"}]}\n' +
-    'URLにアクセスして全出走馬を抽出してください。';
-
-  try {
-    setSts('r','出馬表を取得中...');
-    var entries = await api(eSys, 'この出馬表URLから全出走馬リストを抽出してください。\nURL: ' + url + '\n補足: ' + (info || 'なし'));
-    var horses = entries.horses || [];
-    if (!horses.length) throw new Error('出走馬を取得できませんでした。URLを確認してください。');
-    setSts('r','');
-
-    // 各馬分析
-    document.getElementById('r-prog').classList.add('on');
-    var pl = document.getElementById('r-pl');
-    var pb = document.getElementById('r-pb');
-    pl.innerHTML = horses.map(function(h) {
-      return '<div class="pli wait" id="pl-'+h.num+'"><i class="ti ti-clock"></i>'+h.num+'. '+h.name+'</div>';
-    }).join('');
-
-    var hSys = '競馬専門アナリストとして競走馬を分析してください。【重要】返答は必ずJSON形式のみ。前置き・説明文・```コードブロック・改行コメントは一切不要。最初の文字が{で最後の文字が}になるように返してください。\n' +
-      '{"name":"馬名","meta":"性齢・調教師など1行","summary":"総合評価1〜2文",' +
-      '"firstThreeF":"前半3F平均数値 不明はnull","lastThreeF":"上り3F平均数値 不明はnull",' +
-      '"cornerPosition":"最終コーナー平均位置数値 不明はnull","runningStyle":"逃げ/先行/差し/追込",' +
-      '"strengths":["長所1","長所2"],"weaknesses":["短所1"],' +
-      '"goodConditions":["得意条件1","得意条件2"],"badConditions":["不得意条件1"],' +
-      '"radar":{"labels":["スピード","スタミナ","パワー","根性","安定感","適応力"],"values":[7,8,6,9,7,5]},' +
-      '"expectedCorner4":3}';
-
-    var results = [];
-    var stxEl = document.getElementById('r-stx');
-    for (var i = 0; i < horses.length; i++) {
-      var h = horses[i];
-      var pli = document.getElementById('pl-' + h.num);
-      if (pli) { pli.className='pli run'; pli.innerHTML='<i class="ti ti-loader-2 spin"></i>'+h.num+'. '+h.name; }
-
-      // 1頭目以外は3秒待機してレート制限を回避
-      if (i > 0) {
-        if (stxEl) stxEl.textContent = h.num+'頭目を分析中... ('+i+'/'+horses.length+')';
-        await sleep(3000);
+    if (radarInst) radarInst.destroy();
+    var dk = matchMedia('(prefers-color-scheme:dark)').matches;
+    radarInst = new Chart(document.getElementById('radar-canvas'), {
+      type: 'radar',
+      data: {
+        labels: d.radar && d.radar.labels || ['スピード','スタミナ','パワー','根性','安定感','適応力'],
+        datasets: [{
+          label: '能力', data: d.radar && d.radar.values || [],
+          fill: true,
+          backgroundColor: dk ? 'rgba(55,138,221,.2)' : 'rgba(55,138,221,.12)',
+          borderColor: '#378add', pointBackgroundColor: '#378add', pointRadius: 4, borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { r: {
+          min: 0, max: 10, ticks: { display: false },
+          grid: { color: dk?'rgba(255,255,255,.09)':'rgba(0,0,0,.07)' },
+          angleLines: { color: dk?'rgba(255,255,255,.09)':'rgba(0,0,0,.07)' },
+          pointLabels: { font: { size: 11 }, color: dk?'rgba(255,255,255,.55)':'rgba(0,0,0,.45)' }
+        }}
       }
+    });
 
-      try {
-        var d = await apiWithRetry(hSys,
-          '馬名: '+h.name+' ('+(entries.raceName||'')+'出走)\n'+
-          '騎手: '+(h.jockey||'不明')+' 調教師: '+(h.trainer||'不明')+'\n'+
-          'レース情報: '+(entries.raceInfo||info||'不明')+'\n'+
-          '過去成績から前半3F・上り3F・最終コーナー位置取り平均・脚質・長所短所・得意不得意条件を分析してください。知識ベースから分析可。',
-          3, stxEl);
-        d._num = h.num; d._jockey = h.jockey || '';
-        results.push(d);
-        if (pli) { pli.className='pli done'; pli.innerHTML='<i class="ti ti-check"></i>'+h.num+'. '+h.name; }
-      } catch(e2) {
-        results.push({ _num: h.num, name: h.name, _jockey: h.jockey||'', summary:'分析エラー', strengths:[], weaknesses:[], goodConditions:[], badConditions:[] });
-        if (pli) { pli.innerHTML='<i class="ti ti-x"></i>'+h.num+'. '+h.name+' (エラー)'; }
-      }
-      pb.style.width = ((i+1)/horses.length*100).toFixed(0) + '%';
-    }
-
-    // レース展開予測
-    setSts('r','レース展開を予測中...');
-    var rSys = '競馬専門アナリストとしてレース展開を予測してください。【重要】返答は必ずJSON形式のみ。前置き・説明文・```コードブロック不要。最初の文字が{で最後の文字が}になるように返してください。\n' +
-      '{"raceSummary":"展開予測2〜3文","expectedPace":"ハイペース/ミドルペース/スローペース",' +
-      '"expectedF3":"前半3F想定タイム数値","expectedL3":"上り3F想定タイム数値",' +
-      '"expectedWinTime":"想定勝ちタイム例1:58.5","paceDescription":"ペース根拠・展開説明2〜3文",' +
-      '"formation":[{"position":1,"horses":["馬名1","馬名2"]}],' +
-      '"corner4Positions":[{"name":"馬名","position":1}]}';
-
-    var hsum = results.map(function(h) {
-      return h._num+'番 '+(h.name||'')+'（'+(h.runningStyle||'不明')+'）前半3F:'+(h.firstThreeF||'不明')+' 上り3F:'+(h.lastThreeF||'不明')+' 最終コーナー平均:'+(h.cornerPosition||'不明');
-    }).join('\n');
-
-    var raceData = await api(rSys,
-      'レース: '+(entries.raceName||'不明')+'\nレース情報: '+(entries.raceInfo||info||'不明')+'\n\n出走馬データ:\n'+hsum+'\n\n全馬のデータをもとにレース展開・ペース・隊列・4コーナー位置取りを予測してください。');
-
-    setSts('r','');
-    document.getElementById('r-prog').classList.remove('on');
-    rHorses = results;
-    renderRace(entries, results, raceData, url);
+    document.getElementById('result').style.display = 'block';
+    document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   } catch(e) {
-    setSts('r',''); document.getElementById('r-prog').classList.remove('on');
-    setErr('r','エラー: ' + e.message);
+    setSts('');
+    setErr('エラー: ' + e.message);
   } finally {
-    document.getElementById('r-btn').disabled = false;
+    document.getElementById('btn-analyze').disabled = false;
   }
 }
-
-function renderRace(entries, horses, rd, url) {
-  document.getElementById('r-rsum').innerHTML =
-    '<strong>'+(entries.raceName||'レース')+'</strong> '+(entries.raceInfo||'')+'<br>'+(rd.raceSummary||'');
-
-  var pc = rd.expectedPace || '—';
-  var pcol = { 'ハイペース':'var(--rtx)', 'スローペース':'var(--btx)', 'ミドルペース':'var(--ttx)' };
-  document.getElementById('r-pace').innerHTML = '<span style="color:'+(pcol[pc]||'var(--tx)')+'">'+pc+'</span>';
-  document.getElementById('r-f3').innerHTML = rd.expectedF3 ? rd.expectedF3+'<span class="mcu">秒</span>' : '—';
-  document.getElementById('r-l3').innerHTML = rd.expectedL3 ? rd.expectedL3+'<span class="mcu">秒</span>' : '—';
-  document.getElementById('r-wt').textContent = rd.expectedWinTime || '—';
-  document.getElementById('r-pdesc').textContent = rd.paceDescription || '';
-
-  var scols = ['#639922','#378add','#ba7517','#1d9e75','#993556','#534ab7','#d85a30','#888780'];
-  var fr = document.getElementById('r-frows');
-  if (rd.formation && rd.formation.length) {
-    fr.innerHTML = rd.formation.map(function(g, gi) {
-      var chips = (g.horses||[]).map(function(nm) {
-        var h = horses.find(function(x){ return x.name===nm||(x.name&&x.name.includes(nm))||(nm&&nm.includes(x.name)); });
-        var num = h ? h._num : '?';
-        return '<span class="chip"><span class="cn" style="background:'+scols[gi%scols.length]+'22;color:'+scols[gi%scols.length]+'">'+num+'</span>'+nm+'</span>';
-      }).join('');
-      return '<div class="frow"><span class="fplbl">'+g.position+'番手</span>'+chips+'</div>';
-    }).join('');
-  } else {
-    fr.innerHTML = '<p style="font-size:12px;color:var(--tx3)">隊列データなし</p>';
-  }
-
-  var c4 = document.getElementById('r-c4');
-  if (rd.corner4Positions && rd.corner4Positions.length) {
-    c4.innerHTML = rd.corner4Positions.map(function(c) {
-      var h = horses.find(function(x){ return x.name===c.name||(x.name&&x.name.includes(c.name))||(c.name&&c.name.includes(x.name)); });
-      var num = h ? h._num : '?';
-      return '<div class="cchip"><div class="ccn">'+num+'. '+c.name+'</div><div class="ccp"><span>'+c.position+'</span>番手通過</div></div>';
-    }).join('');
-  } else {
-    c4.innerHTML = '<p style="font-size:12px;color:var(--tx3)">データなし</p>';
-  }
-
-  var hl = document.getElementById('r-hlist');
-  hl.innerHTML = horses.slice().sort(function(a,b){return a._num-b._num;}).map(function(h) {
-    var sc = ['逃げ','先行'].indexOf(h.runningStyle)>=0 ? 'bdgg' : h.runningStyle==='差し' ? 'bdgb' : 'bdga';
-    return '<div class="hc">' +
-      '<div class="hch" onclick="toggleHC('+h._num+')">' +
-        '<div class="hcnum">'+h._num+'</div>' +
-        '<div class="hcname">'+(h.name||'—')+' <span class="bdg '+sc+'">'+(h.runningStyle||'不明')+'</span></div>' +
-        '<div class="hcmeta">'+(h._jockey||'')+'</div>' +
-        '<i class="ti ti-chevron-down hcchev" id="chev-'+h._num+'"></i>' +
-      '</div>' +
-      '<div class="hcb" id="hcb-'+h._num+'">' +
-        '<div class="hcm3">' +
-          '<div class="hcmc"><div class="hcmclb">前半3F 平均</div><div class="hcmcv">'+(h.firstThreeF||'—')+(h.firstThreeF?'<span style="font-size:10px;color:var(--tx2);margin-left:1px">秒</span>':'')+'</div></div>' +
-          '<div class="hcmc"><div class="hcmclb">上り3F 平均</div><div class="hcmcv">'+(h.lastThreeF||'—')+(h.lastThreeF?'<span style="font-size:10px;color:var(--tx2);margin-left:1px">秒</span>':'')+'</div></div>' +
-          '<div class="hcmc"><div class="hcmclb">最終コーナー 平均</div><div class="hcmcv">'+(h.cornerPosition||'—')+(h.cornerPosition?'<span style="font-size:10px;color:var(--tx2);margin-left:1px">番手</span>':'')+'</div></div>' +
-        '</div>' +
-        '<p style="font-size:12px;line-height:1.6;color:var(--tx2);margin-bottom:9px">'+(h.summary||'')+'</p>' +
-        '<div class="hc2">' +
-          '<div><p class="hcsl">長所</p><ul class="hcptl">'+(h.strengths||[]).map(function(s){return li(s,'dg');}).join('')+'</ul></div>' +
-          '<div><p class="hcsl">短所</p><ul class="hcptl">'+(h.weaknesses||[]).map(function(s){return li(s,'dr');}).join('')+'</ul></div>' +
-        '</div>' +
-        '<div class="hc2">' +
-          '<div><p class="hcsl">得意な条件</p><ul class="hcptl">'+(h.goodConditions||[]).map(function(s){return li(s,'db');}).join('')+'</ul></div>' +
-          '<div><p class="hcsl">不得意な条件</p><ul class="hcptl">'+(h.badConditions||[]).map(function(s){return li(s,'da');}).join('')+'</ul></div>' +
-        '</div>' +
-        (h.radar ? '<div style="position:relative;height:170px;margin-top:9px"><canvas id="hr-'+h._num+'" role="img" aria-label="'+h.name+'能力レーダー"></canvas></div>' : '') +
-      '</div>' +
-    '</div>';
-  }).join('');
-
-  document.getElementById('r-src').innerHTML =
-    '分析元: <a href="'+url+'" target="_blank" rel="noopener">出馬表URL</a> ／ AIによるデータ解釈。予想の参考情報としてご活用ください。';
-  document.getElementById('r-res').style.display = 'block';
-}
-
-function toggleHC(num) {
-  var b = document.getElementById('hcb-'+num);
-  var c = document.getElementById('chev-'+num);
-  var op = b.classList.toggle('op');
-  c.classList.toggle('op', op);
-  if (op && !drawnR[num]) {
-    var h = rHorses.find(function(x){ return x._num===num; });
-    if (h && h.radar) { radar('hr-'+num, h.radar.labels, h.radar.values, null); drawnR[num]=true; }
-  }
-}
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
-    if (document.getElementById('pnl-s').classList.contains('on')) doSingle();
-    else doRace();
-  }
-});
 </script>
 </body>
 </html>
-
-
-
