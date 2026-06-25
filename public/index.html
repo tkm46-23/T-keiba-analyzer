@@ -117,6 +117,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .horse-tag{display:inline-block;padding:1px 7px;border-radius:100px;font-size:10px;font-weight:700;color:#fff}
 .f1{color:var(--gtx);font-weight:700}.f2{color:#185fa5;font-weight:600}.f3{color:#854f0b;font-weight:600}
 .no-data{text-align:center;padding:20px;color:var(--tx3);font-size:12px}
+/* テーブル内絞り込み行 */
+.tbl-filter-row th{padding:3px 4px;background:var(--bg2)}
+.tbl-filter-input{width:100%;font-size:11px;padding:3px 5px;border:.5px solid var(--bd2);border-radius:4px;background:var(--bg);color:var(--tx);outline:none;font-family:inherit;min-width:40px}
+.tbl-filter-input:focus{border-color:var(--tx2)}
+.tbl-filter-sel{width:100%;font-size:11px;padding:3px 4px;border:.5px solid var(--bd2);border-radius:4px;background:var(--bg);color:var(--tx);outline:none;font-family:inherit}
 .snote{font-size:11px;color:var(--tx3);padding-top:.9rem;border-top:.5px solid var(--bd);display:flex;align-items:flex-start;gap:4px;margin-top:.9rem;line-height:1.5}
 </style>
 </head>
@@ -220,6 +225,7 @@ var COLORS = ['#378add','#1d9e75','#d85a30','#7f77dd','#ba7517'];
 var allHorses = []; // {horseName, fatherName, rows, colorIdx}
 var visibleHorses = []; // チェックボックスで表示中の馬のindices
 var courseSort = {col: 'time', asc: true};
+var courseFilter = {horse:'',venue:'',surface:'',dist:'',track:'',timeMin:'',timeMax:'',l3Min:'',l3Max:'',finMin:'',finMax:''};
 var cmpSort = {col: null, asc: true};
 
 // ── アップロード ──
@@ -437,6 +443,46 @@ function resetFilters() {
   renderResults();
 }
 
+function updateCourseFilter(key, val) {
+  courseFilter[key] = val.trim();
+  renderResults();
+}
+
+function resetCourseFilter() {
+  courseFilter = {horse:'',venue:'',surface:'',dist:'',track:'',timeMin:'',timeMax:'',l3Min:'',l3Max:'',finMin:'',finMax:''};
+  // テーブル内入力欄をクリア
+  document.querySelectorAll('.tbl-filter-input,.tbl-filter-sel').forEach(function(el){ el.value=''; });
+  renderResults();
+}
+
+function applyCourseFilter(rows) {
+  return rows.filter(function(c) {
+    var f = courseFilter;
+    if (f.horse   && !(c._horseName||'').includes(f.horse))   return false;
+    if (f.venue   && !(c.venue||'').includes(f.venue))         return false;
+    if (f.surface && c.surface !== f.surface)                  return false;
+    if (f.dist    && c.dist !== f.dist)                        return false;
+    if (f.track   && c.track !== f.track)                      return false;
+    var sec = c.timeSec;
+    if (f.timeMin && sec !== null && sec < timeStrToSec(f.timeMin)) return false;
+    if (f.timeMax && sec !== null && sec > timeStrToSec(f.timeMax)) return false;
+    if (f.l3Min   && c.l3 !== null && c.l3 < parseFloat(f.l3Min))  return false;
+    if (f.l3Max   && c.l3 !== null && c.l3 > parseFloat(f.l3Max))  return false;
+    var fn = isNaN(c.finish) ? 99 : c.finish;
+    if (f.finMin  && fn < parseInt(f.finMin))  return false;
+    if (f.finMax  && fn > parseInt(f.finMax))  return false;
+    return true;
+  });
+}
+
+function timeStrToSec(s) {
+  if (!s) return null;
+  var m = String(s).match(/^(\d+):(\d+\.?\d*)$/);
+  if (m) return parseInt(m[1])*60+parseFloat(m[2]);
+  var v = parseFloat(s);
+  return isNaN(v) ? null : v;
+}
+
 function filterCourseList(courseList) {
   return courseList.filter(function(c){
     if(filterState.venue   && c.venue   !== filterState.venue)   return false;
@@ -479,24 +525,57 @@ function setErr(msg){var e=document.getElementById('err');e.textContent=msg;e.cl
 function finishCls(f){return f===1?'f1':f===2?'f2':f===3?'f3':'';}
 function fmtV(v,unit){return v!==null?v+'<span class="mcu">'+unit+'</span>':'<span style="font-size:13px;color:var(--tx3)">—</span>';}
 
+function getUniqueVals(rows, key) {
+  var s = new Set();
+  rows.forEach(function(r){ if(r[key]) s.add(r[key]); });
+  return Array.from(s).sort(key==='dist'?function(a,b){return parseInt(a)-parseInt(b);}:undefined);
+}
+
+function selOpts(vals, curVal) {
+  return vals.map(function(v){return'<option value="'+v+'"'+(v===curVal?' selected':'')+'>'+v+'</option>';}).join('');
+}
+
+function makeFilterRow(hasHorse, surfOpts, distOpts, trkOpts) {
+  var f = courseFilter;
+  var inp = function(fk,ph,w){ return '<input class="tbl-filter-input" placeholder="'+ph+'" style="width:'+(w||'100%')+'" value="'+f[fk]+'" oninput="updateCourseFilter(\''+fk+'\',this.value)">'; };
+  var sel = function(fk,opts){ return '<select class="tbl-filter-sel" onchange="updateCourseFilter(\''+fk+'\',this.value)"><option value="">すべて</option>'+opts+'</select>'; };
+  var rst = '<button onclick="resetCourseFilter()" style="font-size:10px;padding:2px 6px;border:.5px solid var(--bd);border-radius:4px;background:var(--bg);color:var(--tx2);cursor:pointer">リセット</button>';
+  return '<tr class="tbl-filter-row">' +
+    (hasHorse?'<th>'+inp('horse','馬名')+'</th>':'')+
+    '<th>'+inp('venue','競馬場')+'</th>'+
+    '<th>'+sel('surface',selOpts(surfOpts,f.surface))+'</th>'+
+    '<th>'+sel('dist',selOpts(distOpts,f.dist))+'</th>'+
+    '<th>'+sel('track',selOpts(trkOpts,f.track))+'</th>'+
+    '<th>'+inp('timeMin','以上','47%')+' '+inp('timeMax','以下','47%')+'</th>'+
+    '<th>'+inp('l3Min','以上','47%')+' '+inp('l3Max','以下','47%')+'</th>'+
+    '<th>'+inp('finMin','以上','40%')+' '+inp('finMax','以下','40%')+'</th>'+
+    '<th>'+rst+'</th>'+
+    '<th></th>'+
+    '</tr>';
+}
+
 function courseTblSingle(courseList) {
-  var sorted = sortCourseList(filterCourseList(courseList));
+  var base = filterCourseList(courseList);
+  var sorted = sortCourseList(applyCourseFilter(base));
+  var surfOpts = getUniqueVals(base,'surface');
+  var distOpts = getUniqueVals(base,'dist');
+  var trkOpts  = getUniqueVals(base,'track');
   var cols = [
-    {key:'venue', label:'競馬場'},{key:'surface',label:'芝/ダート'},{key:'dist',label:'距離'},
+    {key:'venue',label:'競馬場'},{key:'surface',label:'芝/ダート'},{key:'dist',label:'距離'},
     {key:'track',label:'馬場'},{key:'time',label:'最速タイム'},{key:'l3',label:'上り3F'},
     {key:'fin',label:'着順'},{key:'race',label:'レース名',noSort:true},{key:'date',label:'日付',noSort:true}
   ];
   var head = '<thead><tr>'+cols.map(function(c){
     return '<th'+(c.noSort?'':' onclick="onCourseSort(\''+c.key+'\')" style="cursor:pointer"')+'>'+
       c.label+(!c.noSort?sortIcon(c.key,courseSort.col===c.key,courseSort.asc):'')+'</th>';
-  }).join('')+'</tr></thead>';
+  }).join('')+'</tr>'+makeFilterRow(false,surfOpts,distOpts,trkOpts)+'</thead>';
   var body = sorted.length ? sorted.map(function(c){
-    return '<tr><td>'+(c.venue||'—')+'</td><td>'+(c.surface||'—')+'</td>' +
-      '<td style="text-align:right">'+(c.dist||'—')+'m</td><td>'+(c.track||'—')+'</td>' +
-      '<td style="text-align:right;font-weight:700">'+(c.time||'—')+'</td>' +
-      '<td style="text-align:right">'+(c.l3!==null?c.l3+'秒':'—')+'</td>' +
-      '<td style="text-align:center" class="'+finishCls(c.finish)+'">'+(c.finishStr||'—')+'着</td>' +
-      '<td style="font-size:11px;color:var(--tx2)">'+(c.race||'—')+'</td>' +
+    return '<tr><td>'+(c.venue||'—')+'</td><td>'+(c.surface||'—')+'</td>'+
+      '<td style="text-align:right">'+(c.dist||'—')+'m</td><td>'+(c.track||'—')+'</td>'+
+      '<td style="text-align:right;font-weight:700">'+(c.time||'—')+'</td>'+
+      '<td style="text-align:right">'+(c.l3!==null?c.l3+'秒':'—')+'</td>'+
+      '<td style="text-align:center" class="'+finishCls(c.finish)+'">'+(c.finishStr||'—')+'着</td>'+
+      '<td style="font-size:11px;color:var(--tx2)">'+(c.race||'—')+'</td>'+
       '<td style="font-size:11px;color:var(--tx3)">'+(c.date||'—')+'</td></tr>';
   }).join('') : '<tr><td colspan="9" class="no-data">条件に一致するデータがありません</td></tr>';
   return head+'<tbody>'+body+'</tbody>';
@@ -507,13 +586,16 @@ function courseTblCompare(statsList) {
   statsList.forEach(function(d){
     if (visibleHorses.indexOf(d.horse.colorIdx)===-1) return;
     filterCourseList(d.stats.courseList).forEach(function(c){
-      var r = Object.assign({}, c);
+      var r = Object.assign({},c);
       r._colorIdx = d.horse.colorIdx;
       r._horseName = d.horse.horseName || ('馬'+(d.horse.colorIdx+1));
       allRows.push(r);
     });
   });
-  var sorted = sortCourseList(allRows);
+  var sorted = sortCourseList(applyCourseFilter(allRows));
+  var surfOpts = getUniqueVals(allRows,'surface');
+  var distOpts = getUniqueVals(allRows,'dist');
+  var trkOpts  = getUniqueVals(allRows,'track');
   var cols = [
     {key:'horse',label:'馬名'},{key:'venue',label:'競馬場'},{key:'surface',label:'芝/ダート'},
     {key:'dist',label:'距離'},{key:'track',label:'馬場'},{key:'time',label:'最速タイム'},
@@ -523,16 +605,16 @@ function courseTblCompare(statsList) {
   var head = '<thead><tr>'+cols.map(function(c){
     return '<th'+(c.noSort?'':' onclick="onCourseSort(\''+c.key+'\')" style="cursor:pointer"')+'>'+
       c.label+(!c.noSort?sortIcon(c.key,courseSort.col===c.key,courseSort.asc):'')+'</th>';
-  }).join('')+'</tr></thead>';
+  }).join('')+'</tr>'+makeFilterRow(true,surfOpts,distOpts,trkOpts)+'</thead>';
   var body = sorted.length ? sorted.map(function(c){
-    return '<tr>' +
-      '<td><span class="horse-tag" style="background:'+COLORS[c._colorIdx]+'">'+c._horseName+'</span></td>' +
-      '<td>'+(c.venue||'—')+'</td><td>'+(c.surface||'—')+'</td>' +
-      '<td style="text-align:right">'+(c.dist||'—')+'m</td><td>'+(c.track||'—')+'</td>' +
-      '<td style="text-align:right;font-weight:700">'+(c.time||'—')+'</td>' +
-      '<td style="text-align:right">'+(c.l3!==null?c.l3+'秒':'—')+'</td>' +
-      '<td style="text-align:center" class="'+finishCls(c.finish)+'">'+(c.finishStr||'—')+'着</td>' +
-      '<td style="font-size:11px;color:var(--tx2)">'+(c.race||'—')+'</td>' +
+    return '<tr>'+
+      '<td><span class="horse-tag" style="background:'+COLORS[c._colorIdx]+'">'+c._horseName+'</span></td>'+
+      '<td>'+(c.venue||'—')+'</td><td>'+(c.surface||'—')+'</td>'+
+      '<td style="text-align:right">'+(c.dist||'—')+'m</td><td>'+(c.track||'—')+'</td>'+
+      '<td style="text-align:right;font-weight:700">'+(c.time||'—')+'</td>'+
+      '<td style="text-align:right">'+(c.l3!==null?c.l3+'秒':'—')+'</td>'+
+      '<td style="text-align:center" class="'+finishCls(c.finish)+'">'+(c.finishStr||'—')+'着</td>'+
+      '<td style="font-size:11px;color:var(--tx2)">'+(c.race||'—')+'</td>'+
       '<td style="font-size:11px;color:var(--tx3)">'+(c.date||'—')+'</td></tr>';
   }).join('') : '<tr><td colspan="10" class="no-data">条件に一致するデータがありません</td></tr>';
   return head+'<tbody>'+body+'</tbody>';
