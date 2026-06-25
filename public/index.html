@@ -31,6 +31,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .logo-mark i{font-size:16px;color:#fff}
 .logo-text{font-size:15px;font-weight:500;color:#fff;letter-spacing:.02em}
 .logo-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:1px}
+.hdr-nav{display:flex;gap:4px;margin-left:auto}
+.hdr-tab{padding:5px 14px;border-radius:6px;border:none;background:transparent;color:rgba(255,255,255,.55);cursor:pointer;font-size:12px;font-weight:500;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:background .15s,color .15s;letter-spacing:.01em}
+.hdr-tab i{font-size:14px}
+.hdr-tab:hover{background:rgba(255,255,255,.1);color:#fff}
+.hdr-tab.on{background:rgba(255,255,255,.15);color:#fff}
 .main{max-width:960px;margin:0 auto;padding:24px 16px}
 .card{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:1rem 1.2rem;margin-bottom:.9rem}
 .slbl{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3);padding-bottom:7px;border-bottom:.5px solid var(--bd);margin-bottom:12px}
@@ -132,6 +137,95 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .f1{color:#0f6e56;font-weight:600}.f2{color:#1a5ca8;font-weight:600}.f3{color:#854f0b;font-weight:600}
 .no-data{text-align:center;padding:24px;color:var(--tx3);font-size:12px}
 .snote{font-size:11px;color:var(--tx3);padding-top:.9rem;border-top:.5px solid var(--bd);display:flex;align-items:flex-start;gap:4px;margin-top:.9rem;line-height:1.5}
+
+/* ── ヘルプページ ── */
+.help-hero{background:#1a2744;border-radius:var(--rl);padding:1.4rem 1.6rem;margin-bottom:1.2rem;color:#fff}
+.help-hero-inner{display:flex;align-items:center;gap:14px}
+.help-hero-icon{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.help-hero-icon i{font-size:22px;color:#fff}
+.help-hero-title{font-size:18px;font-weight:500;color:#fff;margin-bottom:3px}
+.help-hero-sub{font-size:12px;color:rgba(255,255,255,.55)}
+.help-steps{display:flex;flex-direction:column;gap:1rem;margin-bottom:1.2rem}
+.help-step-card{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);overflow:hidden}
+.help-step-head{display:flex;align-items:flex-start;gap:14px;padding:1.1rem 1.3rem;border-bottom:.5px solid var(--bd);background:var(--bg2)}
+.help-step-num{font-size:26px;font-weight:300;color:#2d5fa8;line-height:1;flex-shrink:0;font-variant-numeric:tabular-nums;min-width:36px}
+.help-step-title{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:4px;line-height:1.4}
+.help-step-sub{font-size:12px;color:var(--tx2);line-height:1.6}
+.help-step-body{padding:1rem 1.3rem}
+.help-tip-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem}
+.help-tip{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:var(--tx2);background:var(--bg2);border-radius:6px;padding:5px 9px;line-height:1.5;border:.5px solid var(--bd)}
+.help-tip i{font-size:13px;color:var(--tx3);flex-shrink:0;margin-top:1px}
+.help-tip strong{color:var(--tx);font-weight:600}
+.help-tip.warning{background:#fef8e8;border-color:#e0c96a;color:#7a5c0a}
+.help-tip.warning i{color:#c08a10}
+@media(prefers-color-scheme:dark){
+  .help-tip.warning{background:#3a2c00;border-color:#7a6020;color:#e0c070}
+}
+.help-screen{background:var(--bg3);border-radius:var(--r);padding:10px;border:.5px solid var(--bd)}
+.help-screen-label{font-size:10px;color:var(--tx3);margin-bottom:8px;display:flex;align-items:center;gap:4px;letter-spacing:.06em;text-transform:uppercase}
+.help-screen-content{background:var(--bg);border-radius:var(--r);padding:10px;border:.5px solid var(--bd)}
+
+/* Step1: 成績表デモ */
+.hs-table-demo{position:relative}
+.hs-red-border{border:2px solid #e24b4a;border-radius:4px;padding:6px;background:var(--bg)}
+.hs-table-hdr{font-size:11px;font-weight:600;color:var(--tx);padding:4px 6px;border-bottom:.5px solid var(--bd);margin-bottom:4px}
+.hs-table-cols{display:grid;grid-template-columns:repeat(14,1fr);gap:2px;background:#2d5fa8;padding:3px 4px;border-radius:3px;margin-bottom:3px}
+.hs-table-cols span{font-size:9px;color:#fff;text-align:center;white-space:nowrap;overflow:hidden}
+.hs-table-row,.hs-table-row.hs-alt{display:grid;grid-template-columns:repeat(14,1fr);gap:2px;padding:2px 4px}
+.hs-table-row span,.hs-table-row.hs-alt span{font-size:9px;color:var(--tx2);text-align:center;white-space:nowrap;overflow:hidden}
+.hs-table-row.hs-alt{background:var(--bg2)}
+.hs-copy-badge{display:inline-flex;align-items:center;gap:4px;margin-top:7px;font-size:11px;background:#2d5fa8;color:#fff;padding:3px 10px;border-radius:100px}
+.hs-copy-badge i{font-size:12px}
+
+/* Step2: Excelデモ */
+.hs-excel-demo{font-size:11px}
+.hs-excel-title{background:#2d5fa8;color:#fff;text-align:center;padding:4px;border-radius:3px 3px 0 0;font-size:10px}
+.hs-excel-info-row{display:grid;grid-template-columns:repeat(6,1fr);border:.5px solid var(--bd);background:var(--bg)}
+.hs-excel-cell-lbl{background:#f0efed;padding:4px 6px;font-size:9px;font-weight:600;color:var(--tx2);border-right:.5px solid var(--bd)}
+.hs-excel-cell-inp{background:#fff9e6;padding:4px 6px;font-size:10px;border-right:.5px solid var(--bd)}
+.hs-excel-cols{display:grid;grid-template-columns:repeat(13,1fr);background:#378add;padding:3px 4px;margin-top:4px}
+.hs-excel-cols span{font-size:8px;color:#fff;text-align:center}
+.hs-excel-paste-zone{border:2px dashed #e24b4a;border-radius:4px;padding:14px;text-align:center;margin-top:4px;color:var(--tx3);font-size:11px;display:flex;align-items:center;justify-content:center;gap:6px}
+.hs-excel-paste-zone i{font-size:18px;color:#e24b4a}
+
+/* Step3: アップロードデモ */
+.hs-upload-demo{padding:4px}
+.hs-upload-zone{border:2px dashed var(--bd2);border-radius:var(--r);padding:16px;text-align:center;background:var(--bg2);margin-bottom:8px}
+.hs-horse-chips{display:flex;flex-direction:column;gap:5px;margin-bottom:0}
+.hs-horse-chip{display:flex;align-items:center;gap:7px;padding:6px 10px;border-radius:6px;border:.5px solid var(--bd);background:var(--bg2)}
+.hs-horse-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.hs-horse-name{font-size:11px;font-weight:600;flex:1}
+.hs-horse-meta{font-size:10px;color:var(--tx3)}
+.hs-btn-primary{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;background:#1a2744;color:#fff;border-radius:6px;font-size:11px;font-weight:500}
+.hs-btn-primary i{font-size:12px}
+.hs-btn-ghost{display:inline-flex;align-items:center;padding:6px 14px;border:1px solid var(--bd2);color:var(--tx2);border-radius:6px;font-size:11px}
+
+/* Step4: 結果デモ */
+.hs-result-demo{padding:4px}
+.hs-result-name{font-size:15px;font-weight:500;color:var(--tx);margin-bottom:4px}
+.hs-result-lineage{font-size:11px;color:var(--tx3);font-weight:400;display:block;margin-top:2px}
+.hs-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.hs-metric{background:var(--bg2);border-radius:6px;padding:.65rem .8rem;border:.5px solid var(--bd)}
+.hs-metric-lbl{font-size:9px;color:var(--tx3);margin-bottom:4px}
+.hs-metric-v{font-size:18px;font-weight:500;color:var(--navy)}
+.hs-metric-sub{font-size:9px;color:var(--tx3);margin-top:3px}
+.hs-mini-tbl{border-collapse:collapse;width:100%;font-size:10px}
+.hs-mini-tbl-hdr{display:grid;grid-template-columns:repeat(7,1fr);background:var(--bg2);padding:3px 4px}
+.hs-mini-tbl-hdr span{color:var(--tx2);text-align:center;font-size:9px}
+.hs-mini-tbl-row{display:grid;grid-template-columns:repeat(7,1fr);padding:4px 4px;border-top:.5px solid var(--bd)}
+.hs-mini-tbl-row.alt{background:var(--bg2)}
+.hs-mini-tbl-row span{color:var(--tx);text-align:center;font-size:10px}
+
+/* FAQ */
+.help-faq{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:1.1rem 1.3rem;margin-bottom:1.2rem}
+.help-faq-title{font-size:13px;font-weight:600;color:var(--tx);display:flex;align-items:center;gap:6px;margin-bottom:.9rem;padding-bottom:.6rem;border-bottom:.5px solid var(--bd)}
+.help-faq-title i{font-size:16px;color:var(--tx3)}
+.help-faq-list{display:flex;flex-direction:column;gap:0}
+.help-faq-item{padding:.75rem 0;border-bottom:.5px solid var(--bd)}
+.help-faq-item:last-child{border-bottom:none;padding-bottom:0}
+.help-faq-q{font-size:13px;font-weight:600;color:var(--tx);display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.help-faq-q i{font-size:16px;color:#2d5fa8;flex-shrink:0}
+.help-faq-a{font-size:12px;color:var(--tx2);line-height:1.7;padding-left:22px}
 </style>
 </head>
 <body>
@@ -143,9 +237,216 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
       <div class="logo-sub">Race Horse Analyzer</div>
     </div>
   </div>
+  <nav class="hdr-nav">
+    <button class="hdr-tab on" id="tab-main" onclick="switchTab('main')"><i class="ti ti-chart-bar" aria-hidden="true"></i>分析</button>
+    <button class="hdr-tab" id="tab-help" onclick="switchTab('help')"><i class="ti ti-help-circle" aria-hidden="true"></i>使い方</button>
+  </nav>
 </header>
 <main class="main">
 
+<!-- ── ヘルプページ ── -->
+<div id="page-help" style="display:none">
+<div class="help-hero">
+  <div class="help-hero-inner">
+    <div class="help-hero-icon"><i class="ti ti-book-2" aria-hidden="true"></i></div>
+    <div>
+      <div class="help-hero-title">使い方ガイド</div>
+      <div class="help-hero-sub">競走馬プロファイラーの使い方を4ステップで説明します</div>
+    </div>
+  </div>
+</div>
+
+<div class="help-steps">
+
+  <!-- Step 1 -->
+  <div class="help-step-card">
+    <div class="help-step-head">
+      <div class="help-step-num">01</div>
+      <div>
+        <div class="help-step-title">ネット競馬の成績ページをコピーする</div>
+        <div class="help-step-sub">ネット競馬（netkeiba）の馬の成績ページを開き、赤枠内の成績表をすべて選択してコピーします</div>
+      </div>
+    </div>
+    <div class="help-step-body">
+      <div class="help-tip-row">
+        <div class="help-tip"><i class="ti ti-mouse" aria-hidden="true"></i>成績表の上で <strong>Ctrl+A</strong>（全選択）→ <strong>Ctrl+C</strong>（コピー）</div>
+        <div class="help-tip"><i class="ti ti-info-circle" aria-hidden="true"></i>ページ全体ではなく成績表の範囲のみを選択してください</div>
+      </div>
+      <div class="help-screen">
+        <div class="help-screen-label"><i class="ti ti-browser" aria-hidden="true"></i> ネット競馬 成績ページ</div>
+        <div class="help-screen-content">
+          <div class="hs-table-demo">
+            <div class="hs-red-border">
+              <div class="hs-table-hdr">ダノンデサイルの競走成績</div>
+              <div class="hs-table-cols">
+                <span>日付</span><span>開催</span><span>天気</span><span>R</span><span>レース名</span>
+                <span>騎手</span><span>距離</span><span>馬場</span><span>タイム</span><span>着順</span>
+                <span>通過</span><span>ペース</span><span>上り</span><span>馬体重</span>
+              </div>
+              <div class="hs-table-row"><span>2026/06/14</span><span>3阪神4</span><span>雨</span><span>11</span><span style="color:#185fa5">宝塚記念(GI)</span><span>戸崎圭太</span><span>芝2200</span><span>重</span><span>2:12.6</span><span style="color:#0f6e56;font-weight:700">3</span><span>11-12-12-9</span><span>35.4-35.6</span><span>35.0</span><span>520(+4)</span></div>
+              <div class="hs-table-row hs-alt"><span>2026/04/05</span><span>2阪神4</span><span>晴</span><span>11</span><span style="color:#185fa5">大阪杯(GI)</span><span>坂井瑠星</span><span>芝2000</span><span>良</span><span>1:57.9</span><span style="color:#854f0b;font-weight:700">3</span><span>6-6-6-7</span><span>34.9-35.5</span><span>34.9</span><span>516(+2)</span></div>
+              <div class="hs-table-row"><span>2025/12/28</span><span>5中山8</span><span>晴</span><span>11</span><span style="color:#185fa5">有馬記念(GI)</span><span>戸崎圭太</span><span>芝2500</span><span>良</span><span>2:31.6</span><span style="color:#854f0b;font-weight:700">3</span><span>9-9-8-7</span><span>29.7-35.6</span><span>35.0</span><span>514(+6)</span></div>
+              <div class="hs-table-row hs-alt"><span>2025/11/30</span><span>5東京8</span><span>晴</span><span>12</span><span style="color:#185fa5">ジャパンC(GI)</span><span>戸崎圭太</span><span>芝2400</span><span>良</span><span>2:20.8</span><span style="color:#854f0b;font-weight:700">3</span><span>8-8-10-9</span><span>34.5-34.6</span><span>33.8</span><span>506(0)</span></div>
+            </div>
+          </div>
+          <div class="hs-copy-badge"><i class="ti ti-copy" aria-hidden="true"></i>Ctrl+C でコピー</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="help-step-card">
+    <div class="help-step-head">
+      <div class="help-step-num">02</div>
+      <div>
+        <div class="help-step-title">テンプレートに馬名・父馬名・母馬名を入力し、成績を貼り付ける</div>
+        <div class="help-step-sub">テンプレートExcelをダウンロードして、馬名等を入力後、A5セルに「貼り付け先に書式を合わせる」形式で貼り付けます</div>
+      </div>
+    </div>
+    <div class="help-step-body">
+      <div class="help-tip-row">
+        <div class="help-tip"><i class="ti ti-download" aria-hidden="true"></i>まず「テンプレートDL」ボタンでExcelをダウンロード</div>
+        <div class="help-tip"><i class="ti ti-pencil" aria-hidden="true"></i>行2の黄色セルに <strong>馬名・父馬名・母馬名</strong> を入力</div>
+        <div class="help-tip"><i class="ti ti-clipboard" aria-hidden="true"></i><strong>A5セル</strong> を選択 → 右クリック →「<strong>貼り付け先に書式を合わせる</strong>」</div>
+        <div class="help-tip warning"><i class="ti ti-alert-triangle" aria-hidden="true"></i>数値を「<strong>文字列</strong>」に指定してから貼り付けると、タイムが正しく表示されます</div>
+      </div>
+      <div class="help-screen">
+        <div class="help-screen-label"><i class="ti ti-table" aria-hidden="true"></i> テンプレート Excel</div>
+        <div class="help-screen-content">
+          <div class="hs-excel-demo">
+            <div class="hs-excel-title">競走馬 成績一覧／1頭目</div>
+            <div class="hs-excel-info-row">
+              <div class="hs-excel-cell-lbl">馬名（カタカナ）</div>
+              <div class="hs-excel-cell-inp" style="color:#1a2744;font-weight:600">ダノンデサイル</div>
+              <div class="hs-excel-cell-lbl">父馬名</div>
+              <div class="hs-excel-cell-inp" style="color:#1a2744;font-weight:600">エピファネイア</div>
+              <div class="hs-excel-cell-lbl">母馬名</div>
+              <div class="hs-excel-cell-inp" style="color:#1a2744;font-weight:600">トップデサイル</div>
+            </div>
+            <div class="hs-excel-cols">
+              <span>日付</span><span>開催</span><span>天気</span><span>R</span><span style="flex:2">レース名</span>
+              <span>騎手</span><span>距離</span><span>馬場</span><span>タイム</span><span>着順</span><span>通過</span><span>ペース</span><span>上り</span>
+            </div>
+            <div class="hs-excel-paste-zone">
+              <i class="ti ti-clipboard-text" aria-hidden="true"></i>
+              <span>A5セルを選択して「貼り付け先に書式を合わせる」で貼り付け</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="help-step-card">
+    <div class="help-step-head">
+      <div class="help-step-num">03</div>
+      <div>
+        <div class="help-step-title">Excelをアップロードして「分析する」をクリック</div>
+        <div class="help-step-sub">保存したExcelファイルをアップロードエリアにドラッグ＆ドロップし、馬名が正しく表示されたら「分析する」ボタンを押します</div>
+      </div>
+    </div>
+    <div class="help-step-body">
+      <div class="help-tip-row">
+        <div class="help-tip"><i class="ti ti-files" aria-hidden="true"></i>1ファイルに5枚シートがあれば、1回のアップロードで5頭分を読み込めます</div>
+        <div class="help-tip"><i class="ti ti-user-check" aria-hidden="true"></i>読み込んだ馬の名前が一覧に表示されたことを確認してから分析してください</div>
+        <div class="help-tip"><i class="ti ti-arrows-diff" aria-hidden="true"></i>2頭以上アップロードすると自動で<strong>対比モード</strong>に切り替わります</div>
+      </div>
+      <div class="help-screen">
+        <div class="help-screen-label"><i class="ti ti-upload" aria-hidden="true"></i> アップロード画面</div>
+        <div class="help-screen-content">
+          <div class="hs-upload-demo">
+            <div class="hs-upload-zone">
+              <i class="ti ti-cloud-upload" aria-hidden="true" style="font-size:24px;color:#8896b8;display:block;margin-bottom:6px"></i>
+              <div style="font-size:12px;font-weight:500;color:#4a5578">Excelファイルをドラッグ＆ドロップ（複数ファイル可）</div>
+              <div style="font-size:10px;color:#8896b8;margin-top:3px">1ファイル内の複数シート＝複数頭として読み込み</div>
+            </div>
+            <div class="hs-horse-chips">
+              <div class="hs-horse-chip" style="border-color:#2d5fa8">
+                <div class="hs-horse-dot" style="background:#2d5fa8"></div>
+                <div class="hs-horse-name">ダノンデサイル</div>
+                <div class="hs-horse-meta">父: エピファネイア　14戦</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <div class="hs-btn-primary"><i class="ti ti-chart-bar" aria-hidden="true"></i>分析する</div>
+              <div class="hs-btn-ghost">すべてクリア</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="help-step-card">
+    <div class="help-step-head">
+      <div class="help-step-num">04</div>
+      <div>
+        <div class="help-step-title">分析結果を確認する</div>
+        <div class="help-step-sub">前半3F・上り3F・最終コーナー平均位置と、コース・距離別の最速タイム一覧が表示されます。絞り込み条件で特定の条件に絞った分析も可能です</div>
+      </div>
+    </div>
+    <div class="help-step-body">
+      <div class="help-tip-row">
+        <div class="help-tip"><i class="ti ti-filter" aria-hidden="true"></i><strong>絞り込み条件</strong>パネルで競馬場・距離・馬場状態を絞ると、その条件での平均を再計算します</div>
+        <div class="help-tip"><i class="ti ti-arrows-sort" aria-hidden="true"></i>テーブルのヘッダーをクリックすると列を<strong>並べ替え</strong>できます</div>
+        <div class="help-tip"><i class="ti ti-arrows-diff" aria-hidden="true"></i>複数頭の場合、同じ条件で各馬を<strong>横並び比較</strong>できます</div>
+      </div>
+      <div class="help-screen">
+        <div class="help-screen-label"><i class="ti ti-chart-bar" aria-hidden="true"></i> 分析結果</div>
+        <div class="help-screen-content">
+          <div class="hs-result-demo">
+            <div class="hs-result-name">ダノンデサイル
+              <span class="hs-result-lineage">父: エピファネイア　母: トップデサイル</span>
+            </div>
+            <div class="hs-metrics">
+              <div class="hs-metric"><div class="hs-metric-lbl">前半3F 平均タイム</div><div class="hs-metric-v">34.8<span style="font-size:12px;font-weight:400;color:#8896b8">秒</span></div><div class="hs-metric-sub">13レース分の平均</div></div>
+              <div class="hs-metric"><div class="hs-metric-lbl">上り3F 平均タイム</div><div class="hs-metric-v">34.8<span style="font-size:12px;font-weight:400;color:#8896b8">秒</span></div><div class="hs-metric-sub">12レース分の平均</div></div>
+              <div class="hs-metric"><div class="hs-metric-lbl">最終コーナー 平均位置</div><div class="hs-metric-v">7<span style="font-size:12px;font-weight:400;color:#8896b8">番手</span></div><div class="hs-metric-sub">12レース分の平均</div></div>
+            </div>
+            <div class="hs-mini-tbl">
+              <div class="hs-mini-tbl-hdr"><span>競馬場</span><span>芝/ダート</span><span>距離</span><span>馬場</span><span>最速タイム</span><span>上り3F</span><span>着順</span></div>
+              <div class="hs-mini-tbl-row"><span>東京</span><span>芝</span><span>2400m</span><span>良</span><span style="font-weight:600">2:20.8</span><span>33.8秒</span><span style="color:#854f0b;font-weight:600">3着</span></div>
+              <div class="hs-mini-tbl-row alt"><span>中山</span><span>芝</span><span>2000m</span><span>良</span><span style="font-weight:600">2:00.5</span><span>34.1秒</span><span style="color:#0f6e56;font-weight:700">1着</span></div>
+              <div class="hs-mini-tbl-row"><span>阪神</span><span>芝</span><span>2000m</span><span>良</span><span style="font-weight:600">1:57.9</span><span>34.9秒</span><span style="color:#854f0b;font-weight:600">3着</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /help-steps -->
+
+<!-- よくある質問 -->
+<div class="help-faq">
+  <div class="help-faq-title"><i class="ti ti-message-question" aria-hidden="true"></i>よくある質問</div>
+  <div class="help-faq-list">
+    <div class="help-faq-item">
+      <div class="help-faq-q"><i class="ti ti-circle-letter-q" aria-hidden="true"></i>タイムが正しく表示されない</div>
+      <div class="help-faq-a">Excelに貼り付ける前に、A列（日付）とR列（タイム）のセルを「文字列」に設定してから貼り付けると正確に表示されます。または貼り付け後にタイム列を選択して書式を「文字列」→「mm:ss.0」に変更してください。</div>
+    </div>
+    <div class="help-faq-item">
+      <div class="help-faq-q"><i class="ti ti-circle-letter-q" aria-hidden="true"></i>前半3Fや上り3Fの平均が「データなし」になる</div>
+      <div class="help-faq-a">ネット競馬の成績表の「ペース」列（例: 35.4-33.6）と「上り」列が正しくコピーされているか確認してください。海外レースや一部レースはデータがない場合があります。</div>
+    </div>
+    <div class="help-faq-item">
+      <div class="help-faq-q"><i class="ti ti-circle-letter-q" aria-hidden="true"></i>複数頭を比較したい</div>
+      <div class="help-faq-a">1つのExcelファイルに複数のシートを作成し（テンプレートは5枚シート入り）、それぞれに馬のデータを入力してアップロードしてください。2頭以上のデータがあると自動で対比モードに切り替わります。</div>
+    </div>
+    <div class="help-faq-item">
+      <div class="help-faq-q"><i class="ti ti-circle-letter-q" aria-hidden="true"></i>絞り込みをかけると平均値が変わる</div>
+      <div class="help-faq-a">仕様通りです。絞り込み条件（競馬場・距離・馬場など）を設定すると、その条件に一致するレースのみで平均タイム・位置取りを再計算して表示します。</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page-help -->
+
+<!-- ── 分析ページ ── -->
+<div id="page-main">
 <div class="card">
   <p class="slbl">Excelファイルをアップロード（複数シート対応・最大5頭まで）</p>
   <div class="upload-area" id="upload-area"
@@ -255,10 +556,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 
   <p class="snote"><i class="ti ti-info-circle" aria-hidden="true"></i>Excelの成績データから集計した結果です。予想の参考情報としてご活用ください。</p>
 </div>
+</div><!-- /page-main -->
 </main>
 
 <script>
 var MAX=5, COLORS=['#2d5fa8','#1d9e75','#d85a30','#7f77dd','#ba7517'];
+
+function switchTab(tab){
+  document.getElementById('page-main').style.display = tab==='main'?'block':'none';
+  document.getElementById('page-help').style.display = tab==='help'?'block':'none';
+  document.getElementById('tab-main').classList.toggle('on', tab==='main');
+  document.getElementById('tab-help').classList.toggle('on', tab==='help');
+}
 var allHorses=[], visibleHorses=[];
 var courseSort={col:'time',asc:true};
 // フィルター状態：チェックボックスはSet（空=すべて）、距離は数値
@@ -705,4 +1014,3 @@ function doAnalyze(){
 </script>
 </body>
 </html>
-
