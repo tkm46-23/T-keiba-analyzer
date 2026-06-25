@@ -406,14 +406,17 @@ function buildCbGroup(containerId,vals,fKey){
   var el=document.getElementById(containerId);
   el.innerHTML=vals.map(function(v){
     var checked=fState[fKey].has(v);
-    return'<label class="cb-item'+(checked?' checked':'')+'" onclick="toggleCb(\''+fKey+'\',\''+v+'\',this)">'+
-      '<input type="checkbox"'+(checked?' checked':'')+'>'+v+'</label>';
+    return'<label class="cb-item'+(checked?' checked':'')+'" data-fkey="'+fKey+'" data-val="'+v+'">'+
+      '<input type="checkbox"'+(checked?' checked':'')+' onchange="toggleCb(this)">'+v+'</label>';
   }).join('');
 }
 
-function toggleCb(fKey,val,labelEl){
-  if(fState[fKey].has(val)){fState[fKey].delete(val);labelEl.classList.remove('checked');}
-  else{fState[fKey].add(val);labelEl.classList.add('checked');}
+function toggleCb(inputEl){
+  var label=inputEl.parentElement;
+  var fKey=label.getAttribute('data-fkey');
+  var val=label.getAttribute('data-val');
+  if(inputEl.checked){fState[fKey].add(val);label.classList.add('checked');}
+  else{fState[fKey].delete(val);label.classList.remove('checked');}
   applyFilters();
 }
 
@@ -702,5 +705,4 @@ function doAnalyze(){
 </script>
 </body>
 </html>
-
 
