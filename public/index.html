@@ -141,6 +141,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .horse-tag{display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:600;color:#fff}
 .f1{color:#0f6e56;font-weight:600}.f2{color:#1a5ca8;font-weight:600}.f3{color:#854f0b;font-weight:600}
 .no-data{text-align:center;padding:24px;color:var(--tx3);font-size:12px}
+/* ── サイト紹介 ── */
+.intro-section{background:#fff;border:1px solid rgba(26,39,68,.18);border-radius:var(--rl);padding:1.4rem 1.6rem;margin-bottom:.9rem;box-shadow:0 1px 3px rgba(26,39,68,.1)}
+.intro-catch{font-size:18px;font-weight:600;color:#1a2744;margin-bottom:.7rem;letter-spacing:.01em}
+.intro-body{font-size:13px;color:#3d4f6e;line-height:1.85;margin-bottom:1rem}
+.intro-targets{display:flex;flex-direction:column;gap:7px;padding:1rem 1.1rem;background:#f0f4fc;border-radius:var(--r);border-left:3px solid #2d5fa8}
+.intro-target{display:flex;align-items:center;gap:7px;font-size:12px;color:#1a2744;font-weight:500}
+.intro-target i{font-size:15px;color:#2d5fa8;flex-shrink:0}
+
 .snote{font-size:11px;color:var(--tx3);padding-top:.9rem;border-top:.5px solid var(--bd);display:flex;align-items:flex-start;gap:4px;margin-top:.9rem;line-height:1.5}
 
 /* ── ヒーロー画像 ── */
@@ -465,6 +473,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
   <div class="hero-banner-placeholder" id="hero-placeholder" style="display:none">
     <i class="ti ti-photo" aria-hidden="true"></i>
     <span>hero.jpg をGitHubのpublicフォルダにアップロードしてください</span>
+  </div>
+</div>
+
+<!-- サイト紹介 -->
+<div class="intro-section">
+  <div class="intro-catch">データで、馬を見る目が変わる。</div>
+  <p class="intro-body">競馬の成績データをネット競馬からコピー＆ペーストするだけで、前半3F・上り3F・最終コーナー位置取りの平均値と、コース・距離別の最速タイムを自動集計します。最大5頭まで同時に比較できるので、出走馬の特徴や得意条件を一目で把握できます。</p>
+  <div class="intro-targets">
+    <div class="intro-target"><i class="ti ti-check-circle" aria-hidden="true"></i>出走馬の成績をデータで整理したい方</div>
+    <div class="intro-target"><i class="ti ti-check-circle" aria-hidden="true"></i>複数の馬を条件別に比較して検討したい方</div>
+    <div class="intro-target"><i class="ti ti-check-circle" aria-hidden="true"></i>競馬予想をもっと根拠のあるものにしたい方</div>
   </div>
 </div>
 
