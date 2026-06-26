@@ -459,8 +459,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 
 <!-- ヒーロー画像（分析前のみ表示） -->
 <div class="hero-banner" id="hero-banner">
-  <img src="hero.jpg" alt="競走馬プロファイラー" id="hero-img"
-    onerror="this.style.display='none';document.getElementById('hero-placeholder').style.display='flex'"
+  <img src="hero.JPG" alt="競走馬プロファイラー" id="hero-img"
+    onerror="tryHeroFallback(this)"
     style="border-radius:var(--rl)">
   <div class="hero-banner-placeholder" id="hero-placeholder" style="display:none">
     <i class="ti ti-photo" aria-hidden="true"></i>
@@ -581,6 +581,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 </main>
 
 <script>
+function tryHeroFallback(img) {
+  var srcs = ['hero.JPG','hero.jpg','hero.png','hero.PNG','hero.jpeg','hero.JPEG'];
+  var cur = img.getAttribute('src');
+  var idx = srcs.indexOf(cur);
+  if (idx !== -1 && idx < srcs.length - 1) {
+    img.src = srcs[idx + 1];
+  } else {
+    img.style.display = 'none';
+    var ph = document.getElementById('hero-placeholder');
+    if (ph) ph.style.display = 'flex';
+  }
+}
+
 var MAX=5, COLORS=['#2d5fa8','#1d9e75','#d85a30','#7f77dd','#ba7517'];
 
 function switchTab(tab){
