@@ -9,22 +9,27 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#1a2744;--bg:#fff;--bg2:#f4f6fb;--bg3:#eef0f7;
-  --tx:#1a2744;--tx2:#4a5578;--tx3:#8896b8;
-  --bd:rgba(26,39,68,.12);--bd2:rgba(26,39,68,.22);
-  --gbg:#e8f5ee;--gtx:#0f6e56;
-  --rbg:#fceaea;--rtx:#8c1f1f;
-  --bbg:#e8eef8;
+  /* ── カラーパレット（常にライトモード固定） ── */
+  --navy:#1a2744;       /* メインの紺色 */
+  --navy-light:#2d5fa8; /* 明るい紺色 */
+  --bg:#ffffff;         /* カード・パネル背景 */
+  --bg2:#f0f3fa;        /* 薄い青みグレー（セカンダリ背景） */
+  --bg3:#e4e9f5;        /* ページ背景（少し濃いめ） */
+  --tx:#1a2744;         /* メインテキスト（紺） */
+  --tx2:#3d4f6e;        /* サブテキスト */
+  --tx3:#7a8caa;        /* ヒントテキスト */
+  --bd:rgba(26,39,68,.18);  /* ボーダー（やや濃く） */
+  --bd2:rgba(26,39,68,.3);  /* 強調ボーダー */
+  --gbg:#e4f4ec;--gtx:#0a5c45; /* 成功グリーン */
+  --rbg:#fde8e8;--rtx:#7a1a1a; /* エラーレッド */
+  --bbg:#ddeaf8;               /* インフォブルー背景 */
   --r:8px;--rl:12px;
   --c0:#2d5fa8;--c1:#1d9e75;--c2:#d85a30;--c3:#7f77dd;--c4:#ba7517;
+  /* シャドウ */
+  --shadow-sm:0 1px 3px rgba(26,39,68,.1);
+  --shadow-md:0 2px 8px rgba(26,39,68,.12);
 }
-@media(prefers-color-scheme:dark){:root{
-  --bg:#181e30;--bg2:#1e2640;--bg3:#242c4a;
-  --tx:#e8eef8;--tx2:#a0b4e0;--tx3:#607090;
-  --bd:rgba(200,212,240,.12);--bd2:rgba(200,212,240,.22);
-  --gbg:#0a3020;--gtx:#5dcaa5;--rbg:#3a1010;--rtx:#f09595;--bbg:#1a2744;
-}}
-body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif;font-size:14px;line-height:1.6;color:var(--tx);background:var(--bg3);min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif;font-size:14px;line-height:1.6;color:var(--tx);background:var(--bg3);min-height:100vh;color-scheme:light}
 .hdr{background:#1a2744;padding:0 24px;height:54px;display:flex;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(255,255,255,.08)}
 .logo{display:flex;align-items:center;gap:10px}
 .logo-mark{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center}
@@ -37,7 +42,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .hdr-tab:hover{background:rgba(255,255,255,.1);color:#fff}
 .hdr-tab.on{background:rgba(255,255,255,.15);color:#fff}
 .main{max-width:960px;margin:0 auto;padding:24px 16px}
-.card{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:1rem 1.2rem;margin-bottom:.9rem}
+.card{background:var(--bg);border:1px solid var(--bd);border-radius:var(--rl);padding:1rem 1.2rem;margin-bottom:.9rem;box-shadow:var(--shadow-sm)}
 .slbl{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3);padding-bottom:7px;border-bottom:.5px solid var(--bd);margin-bottom:12px}
 .brow{display:flex;gap:8px;align-items:center;margin-top:1rem;flex-wrap:wrap}
 .btn{padding:9px 22px;font-size:13px;font-weight:500;border-radius:var(--r);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background .15s;font-family:inherit}
@@ -45,7 +50,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .btn-primary{background:#1a2744;color:#fff;border:none}.btn-primary:hover{background:#243460}
 .btn-ghost{background:var(--bg);color:var(--tx2);border:.5px solid var(--bd2)}.btn-ghost:hover{background:var(--bg2)}
 .err{display:none;background:var(--rbg);border:.5px solid var(--bd);border-radius:var(--r);padding:.75rem 1rem;font-size:12px;color:var(--rtx);margin-bottom:.8rem}.err.on{display:block}
-.upload-area{border:2px dashed var(--bd2);border-radius:var(--rl);padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;background:var(--bg2);margin-bottom:10px}
+.upload-area{border:2px dashed #2d5fa8;border-radius:var(--rl);padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;background:#f5f8ff;margin-bottom:10px}
 .upload-area:hover,.upload-area.drag{border-color:#2d5fa8;background:var(--bbg)}
 .upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
 .upload-area i{font-size:30px;color:var(--tx3);display:block;margin-bottom:8px}
@@ -54,7 +59,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .dl-link{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#2d5fa8;text-decoration:none;padding:4px 10px;border:.5px solid var(--bd2);border-radius:var(--r);margin-top:6px;transition:background .15s}
 .dl-link:hover{background:var(--bbg)}
 .horse-list{display:flex;flex-direction:column;gap:6px;margin-top:10px}
-.horse-item{display:flex;align-items:center;gap:8px;padding:8px 11px;background:var(--bg2);border-radius:var(--r);border:.5px solid var(--bd)}
+.horse-item{display:flex;align-items:center;gap:8px;padding:8px 11px;background:#fff;border-radius:var(--r);border:1px solid var(--bd);box-shadow:var(--shadow-sm)}
 .horse-color{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .horse-item-name{font-size:12px;font-weight:600;flex:1}
 .horse-item-meta{font-size:11px;color:var(--tx3)}
@@ -68,8 +73,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 @media(prefers-color-scheme:dark){.mode-single{background:#1a2744;color:#c8d4f0;border-color:rgba(200,212,240,.2)}}
 
 /* ── フィルターパネル（新仕様） ── */
-.filter-panel{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:0;margin-bottom:.9rem;overflow:hidden}
-.filter-panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;border-bottom:.5px solid var(--bd);cursor:pointer;user-select:none}
+.filter-panel{background:var(--bg);border:1.5px solid var(--navy-light);border-radius:var(--rl);padding:0;margin-bottom:.9rem;overflow:hidden;box-shadow:var(--shadow-sm)}
+.filter-panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;border-bottom:1px solid var(--bd);cursor:pointer;user-select:none;background:#f0f4fc}
 .filter-panel-hdr:hover{background:var(--bg2)}
 .filter-panel-title{font-size:12px;font-weight:500;color:var(--tx);display:flex;align-items:center;gap:5px}
 .filter-panel-title i{font-size:14px;color:var(--tx3)}
@@ -77,7 +82,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .filter-active-badge{font-size:10px;padding:2px 7px;border-radius:100px;background:#2d5fa8;color:#fff;font-weight:500}
 .filter-toggle-icon{font-size:14px;color:var(--tx3);transition:transform .2s}
 .filter-toggle-icon.open{transform:rotate(180deg)}
-.filter-body{display:none;padding:.9rem 1rem;display:flex;flex-direction:column;gap:12px}
+.filter-body{display:none;padding:.9rem 1rem;display:flex;flex-direction:column;gap:12px;background:#fff}
 .filter-body.open{display:flex}
 .filter-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
 .filter-col{display:flex;flex-direction:column;gap:5px;min-width:100px}
@@ -99,44 +104,50 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .hcheck input{display:none}
 .hcheck.off{opacity:.35}
 /* フィルターフッター */
-.filter-footer{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;border-top:.5px solid var(--bd);background:var(--bg2)}
+.filter-footer{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;border-top:1px solid var(--bd);background:#f0f4fc}
 .filter-summary{font-size:11px;color:var(--tx3)}
 .filter-rst{padding:4px 12px;font-size:11px;border:.5px solid var(--bd);border-radius:var(--r);background:var(--bg);color:var(--tx2);cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px}
 .filter-rst:hover{background:var(--bg2)}
 
-.section-title{font-size:13px;font-weight:500;color:var(--tx);display:flex;align-items:center;gap:6px;padding:.8rem 0 .4rem;border-bottom:.5px solid var(--bd);margin-bottom:.9rem}
+.section-title{font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:6px;padding:.8rem 0 .4rem;border-bottom:2px solid #dde6f5;margin-bottom:.9rem}
 .section-title i{font-size:15px;color:var(--tx3)}
 .horse-header{padding:0 0 .9rem;border-bottom:.5px solid var(--bd);margin-bottom:1rem}
 .horse-name{font-size:24px;font-weight:500;letter-spacing:.01em}
 .horse-lineage{font-size:12px;color:var(--tx3);margin-top:3px}
 .mg3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
 @media(max-width:500px){.mg3{grid-template-columns:1fr 1fr}}
-.mc{background:var(--bg2);border-radius:var(--r);padding:.85rem 1rem;border:.5px solid var(--bd)}
+.mc{background:#fff;border-radius:var(--r);padding:.85rem 1rem;border:1px solid var(--bd);box-shadow:var(--shadow-sm)}
 .mclb{font-size:10px;color:var(--tx3);margin-bottom:5px;line-height:1.4;letter-spacing:.03em}
 .mcv{font-size:22px;font-weight:500;color:var(--navy);line-height:1}
 .mcu{font-size:12px;font-weight:400;color:var(--tx2);margin-left:2px}
 .mc-sub{font-size:10px;color:var(--tx3);margin-top:4px}
 .cmp-wrap{overflow-x:auto;margin-bottom:.9rem}
 .cmp-tbl{border-collapse:collapse;font-size:13px;min-width:100%}
-.cmp-tbl th{padding:8px 10px;border:.5px solid var(--bd);font-size:11px;font-weight:500;color:var(--tx2);background:var(--bg2);white-space:nowrap;text-align:left}
-.cmp-tbl td{padding:8px 10px;border:.5px solid var(--bd);white-space:nowrap}
+.cmp-tbl th{padding:8px 10px;border:1px solid var(--bd);font-size:11px;font-weight:500;color:var(--tx);background:#dde6f5;white-space:nowrap;text-align:left}
+.cmp-tbl td{padding:8px 10px;border:1px solid var(--bd);white-space:nowrap}
 .cmp-tbl .val{font-size:16px;font-weight:500;text-align:right;color:var(--navy)}
 .cmp-tbl .val-best{color:#0f6e56}
 .cmp-tbl .sub{font-size:10px;color:var(--tx3);text-align:right}
-.cmp-tbl tr:nth-child(even) td{background:var(--bg2)}
+.cmp-tbl tr:nth-child(even) td{background:#f5f8ff}
 .cmp-note{font-size:11px;color:var(--tx3);margin-bottom:.5rem;display:flex;align-items:center;gap:4px}
 .course-wrap{overflow-x:auto;margin-bottom:.9rem}
 .course-tbl{border-collapse:collapse;font-size:12px;min-width:100%}
-.course-tbl th{background:var(--bg2);color:var(--tx2);padding:6px 9px;border:.5px solid var(--bd);white-space:nowrap;font-size:11px;font-weight:500;cursor:pointer;user-select:none}
+.course-tbl th{background:#dde6f5;color:var(--tx);padding:6px 9px;border:1px solid var(--bd);white-space:nowrap;font-size:11px;font-weight:600;cursor:pointer;user-select:none}
 .course-tbl th:hover{background:var(--bbg)}
 .course-tbl th .si{font-size:10px;margin-left:2px;color:var(--tx3)}
-.course-tbl td{padding:7px 9px;border:.5px solid var(--bd);white-space:nowrap;color:var(--tx)}
-.course-tbl tr:nth-child(even) td{background:var(--bg2)}
-.course-tbl tr:hover td{background:var(--bbg)}
+.course-tbl td{padding:7px 9px;border:1px solid var(--bd);white-space:nowrap;color:var(--tx)}
+.course-tbl tr:nth-child(even) td{background:#f5f8ff}
+.course-tbl tr:hover td{background:#ddeaf8}
 .horse-tag{display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:600;color:#fff}
 .f1{color:#0f6e56;font-weight:600}.f2{color:#1a5ca8;font-weight:600}.f3{color:#854f0b;font-weight:600}
 .no-data{text-align:center;padding:24px;color:var(--tx3);font-size:12px}
 .snote{font-size:11px;color:var(--tx3);padding-top:.9rem;border-top:.5px solid var(--bd);display:flex;align-items:flex-start;gap:4px;margin-top:.9rem;line-height:1.5}
+
+/* ── ヒーロー画像 ── */
+.hero-banner{width:100%;position:relative;overflow:hidden;border-radius:var(--rl);margin-bottom:1rem;display:block}
+.hero-banner img{width:100%;height:auto;display:block;border-radius:var(--rl)}
+.hero-banner-placeholder{width:100%;aspect-ratio:16/5;background:linear-gradient(135deg,#1a2744 0%,#2d5fa8 50%,#1a2744 100%);border-radius:var(--rl);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:rgba(255,255,255,.4);font-size:12px;text-align:center;border:.5px solid var(--bd)}
+.hero-banner-placeholder i{font-size:28px}
 
 /* ── ヘルプページ ── */
 .help-hero{background:#1a2744;border-radius:var(--rl);padding:1.4rem 1.6rem;margin-bottom:1.2rem;color:#fff}
@@ -146,7 +157,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .help-hero-title{font-size:18px;font-weight:500;color:#fff;margin-bottom:3px}
 .help-hero-sub{font-size:12px;color:rgba(255,255,255,.55)}
 .help-steps{display:flex;flex-direction:column;gap:1rem;margin-bottom:1.2rem}
-.help-step-card{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);overflow:hidden}
+.help-step-card{background:#fff;border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;box-shadow:var(--shadow-sm)}
 .help-step-head{display:flex;align-items:flex-start;gap:14px;padding:1.1rem 1.3rem;border-bottom:.5px solid var(--bd);background:var(--bg2)}
 .help-step-num{font-size:26px;font-weight:300;color:#2d5fa8;line-height:1;flex-shrink:0;font-variant-numeric:tabular-nums;min-width:36px}
 .help-step-title{font-size:14px;font-weight:600;color:var(--tx);margin-bottom:4px;line-height:1.4}
@@ -156,11 +167,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .help-tip{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:var(--tx2);background:var(--bg2);border-radius:6px;padding:5px 9px;line-height:1.5;border:.5px solid var(--bd)}
 .help-tip i{font-size:13px;color:var(--tx3);flex-shrink:0;margin-top:1px}
 .help-tip strong{color:var(--tx);font-weight:600}
-.help-tip.warning{background:#fef8e8;border-color:#e0c96a;color:#7a5c0a}
+.help-tip.warning{background:#fff8e0;border-color:#d4a800;color:#6a4e00}
 .help-tip.warning i{color:#c08a10}
-@media(prefers-color-scheme:dark){
-  .help-tip.warning{background:#3a2c00;border-color:#7a6020;color:#e0c070}
-}
+
 .help-screen{background:var(--bg3);border-radius:var(--r);padding:10px;border:.5px solid var(--bd)}
 .help-screen-label{font-size:10px;color:var(--tx3);margin-bottom:8px;display:flex;align-items:center;gap:4px;letter-spacing:.06em;text-transform:uppercase}
 .help-screen-content{background:var(--bg);border-radius:var(--r);padding:10px;border:.5px solid var(--bd)}
@@ -217,7 +226,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .hs-mini-tbl-row span{color:var(--tx);text-align:center;font-size:10px}
 
 /* FAQ */
-.help-faq{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:1.1rem 1.3rem;margin-bottom:1.2rem}
+.help-faq{background:#fff;border:1px solid var(--bd);border-radius:var(--rl);padding:1.1rem 1.3rem;margin-bottom:1.2rem;box-shadow:var(--shadow-sm)}
 .help-faq-title{font-size:13px;font-weight:600;color:var(--tx);display:flex;align-items:center;gap:6px;margin-bottom:.9rem;padding-bottom:.6rem;border-bottom:.5px solid var(--bd)}
 .help-faq-title i{font-size:16px;color:var(--tx3)}
 .help-faq-list{display:flex;flex-direction:column;gap:0}
@@ -447,6 +456,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 
 <!-- ── 分析ページ ── -->
 <div id="page-main">
+
+<!-- ヒーロー画像（分析前のみ表示） -->
+<div class="hero-banner" id="hero-banner">
+  <img src="hero.jpg" alt="競走馬プロファイラー" id="hero-img"
+    onerror="this.style.display='none';document.getElementById('hero-placeholder').style.display='flex'"
+    style="border-radius:var(--rl)">
+  <div class="hero-banner-placeholder" id="hero-placeholder" style="display:none">
+    <i class="ti ti-photo" aria-hidden="true"></i>
+    <span>hero.jpg をGitHubのpublicフォルダにアップロードしてください</span>
+  </div>
+</div>
+
 <div class="card">
   <p class="slbl">Excelファイルをアップロード（複数シート対応・最大5頭まで）</p>
   <div class="upload-area" id="upload-area"
@@ -679,7 +700,11 @@ function removeHorse(idx){
 
 function doClearAll(){
   allHorses=[];renderHorseList();
-  document.getElementById('result').style.display='none';setErr('');
+  document.getElementById('result').style.display='none';
+  // クリア時にヒーロー画像を再表示
+  var hero = document.getElementById('hero-banner');
+  if (hero) hero.style.display = 'block';
+  setErr('');
 }
 
 function timeToSec(str){
@@ -1009,6 +1034,9 @@ function doAnalyze(){
 
   renderResults();
   document.getElementById('result').style.display='block';
+  // 分析結果表示後はヒーロー画像を非表示
+  var hero = document.getElementById('hero-banner');
+  if (hero) hero.style.display = 'none';
   document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
 </script>
