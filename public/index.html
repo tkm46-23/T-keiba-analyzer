@@ -52,9 +52,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .btn-primary{background:#1a2744;color:#fff;border:none}.btn-primary:hover{background:#243460}
 .btn-ghost{background:var(--bg);color:var(--tx2);border:.5px solid var(--bd2)}.btn-ghost:hover{background:var(--bg2)}
 .err{display:none;background:var(--rbg);border:.5px solid var(--bd);border-radius:var(--r);padding:.75rem 1rem;font-size:12px;color:var(--rtx);margin-bottom:.8rem}.err.on{display:block}
-.upload-area{border:2px dashed #2d5fa8;border-radius:var(--rl);padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;background:#f5f8ff;margin-bottom:10px}
+.upload-area{border:2px dashed #2d5fa8;border-radius:var(--rl);padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;background:#f5f8ff;margin-bottom:10px;overflow:hidden}
 .upload-area:hover,.upload-area.drag{border-color:#2d5fa8;background:var(--bbg)}
-.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:10}
 .upload-area i{font-size:30px;color:var(--tx3);display:block;margin-bottom:8px}
 .upload-area .ut{font-size:13px;font-weight:500;color:var(--tx);margin-bottom:3px}
 .upload-area .us{font-size:11px;color:var(--tx3)}
@@ -466,7 +466,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 </div><!-- /page-help -->
 
 <!-- ── 分析ページ ── -->
-<div id="page-main">
+<div id="page-main" style="display:block">
 
 <!-- ヒーロー画像（分析前のみ表示） -->
 <div class="hero-banner" id="hero-banner">
@@ -1142,6 +1142,22 @@ function doAnalyze(){
   if (hero) hero.style.display = 'none';
   document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
 }
+// ── 初期化 ──
+document.addEventListener('DOMContentLoaded', function(){
+  // 分析タブをアクティブに
+  document.getElementById('page-main').style.display = 'block';
+  document.getElementById('page-help').style.display = 'none';
+  document.getElementById('tab-main').classList.add('on');
+  document.getElementById('tab-help').classList.remove('on');
+  // アップロードエリアのクリックを確実に動作させる
+  var zone = document.getElementById('upload-area');
+  var inp  = document.getElementById('file-input');
+  if(zone && inp){
+    zone.addEventListener('click', function(e){
+      if(e.target !== inp) inp.click();
+    });
+  }
+});
 </script>
 </body>
 </html>
