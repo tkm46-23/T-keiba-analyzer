@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>競走馬プロファイラー</title>
+<title>マイ競馬リサーチ</title>
+<link rel="icon" type="image/jpeg" href="favicon.JPG">
+<link rel="apple-touch-icon" href="favicon.JPG">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -122,13 +124,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .mcu{font-size:12px;font-weight:400;color:var(--tx2);margin-left:2px}
 .mc-sub{font-size:10px;color:var(--tx3);margin-top:4px}
 .cmp-wrap{overflow-x:auto;margin-bottom:.9rem}
-.cmp-tbl{border-collapse:collapse;font-size:13px;min-width:100%}
-.cmp-tbl th{padding:8px 10px;border:1px solid var(--bd);font-size:11px;font-weight:500;color:var(--tx);background:#dde6f5;white-space:nowrap;text-align:left}
-.cmp-tbl td{padding:8px 10px;border:1px solid var(--bd);white-space:nowrap}
-.cmp-tbl .val{font-size:16px;font-weight:500;text-align:right;color:var(--navy)}
-.cmp-tbl .val-best{color:#0f6e56}
-.cmp-tbl .sub{font-size:10px;color:var(--tx3);text-align:right}
-.cmp-tbl tr:nth-child(even) td{background:#f5f8ff}
+.cmp-tbl{border-collapse:collapse;font-size:13px;min-width:100%;table-layout:auto}
+.cmp-tbl th{padding:8px 10px;border:1px solid var(--bd);font-size:11px;font-weight:600;color:var(--tx);background:#dde6f5;white-space:nowrap;text-align:left}
+.cmp-tbl td{padding:8px 10px;border:1px solid var(--bd);white-space:nowrap;background:#fff}
+.cmp-tbl .val{text-align:center;color:var(--navy)}
+.cmp-tbl .val-best{color:#0f6e56;background:#f0fbf5 !important}
+.cmp-tbl .sub{font-size:10px;color:var(--tx3);text-align:center}
+.cmp-tbl tr:nth-child(even) td{background:#f8faff}
+.cmp-tbl tr:hover td{background:#eef4ff}
 .cmp-note{font-size:11px;color:var(--tx3);margin-bottom:.5rem;display:flex;align-items:center;gap:4px}
 .course-wrap{overflow-x:auto;margin-bottom:.9rem}
 .course-tbl{border-collapse:collapse;font-size:12px;min-width:100%}
@@ -250,8 +253,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
   <div class="logo">
     <div class="logo-mark"><i class="ti ti-trophy" aria-hidden="true"></i></div>
     <div>
-      <div class="logo-text">競走馬プロファイラー</div>
-      <div class="logo-sub">Race Horse Analyzer</div>
+      <div class="logo-text">マイ競馬リサーチ</div>
+      <div class="logo-sub">My Keiba Research</div>
     </div>
   </div>
   <nav class="hdr-nav">
@@ -268,7 +271,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
     <div class="help-hero-icon"><i class="ti ti-book-2" aria-hidden="true"></i></div>
     <div>
       <div class="help-hero-title">使い方ガイド</div>
-      <div class="help-hero-sub">競走馬プロファイラーの使い方を4ステップで説明します</div>
+      <div class="help-hero-sub">マイ競馬リサーチの使い方を4ステップで説明します</div>
     </div>
   </div>
 </div>
@@ -467,7 +470,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 
 <!-- ヒーロー画像（分析前のみ表示） -->
 <div class="hero-banner" id="hero-banner">
-  <img src="hero.JPG" alt="競走馬プロファイラー" id="hero-img"
+  <img src="hero.JPG" alt="マイ競馬リサーチ" id="hero-img"
     onerror="tryHeroFallback(this)"
     style="border-radius:var(--rl)">
   <div class="hero-banner-placeholder" id="hero-placeholder" style="display:none">
@@ -488,20 +491,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 </div>
 
 <div class="card">
-  <p class="slbl">Excelファイルをアップロード（複数シート対応・最大5頭まで）</p>
+  <p class="slbl">Excelファイルをアップロード（複数シート対応・最大18頭まで）</p>
   <div class="upload-area" id="upload-area"
     ondragover="onDragArea(event,true)" ondragleave="onDragArea(event,false)" ondrop="onDropArea(event)">
     <input type="file" accept=".xlsx,.xls" multiple onchange="onFileArea(event)" id="file-input">
     <i class="ti ti-cloud-upload" aria-hidden="true"></i>
     <div class="ut">Excelファイルをドラッグ＆ドロップ（複数ファイル可）</div>
-    <div class="us">1ファイル内の複数シート＝複数頭として読み込み ／ 合計最大5頭</div>
+    <div class="us">1ファイル内の複数シート＝複数頭として読み込み ／ 合計最大18頭</div>
   </div>
   <p style="font-size:11px;color:var(--tx3)">テンプレート →
     <a href="keiba_1頭検索_テンプレート.xlsx" download class="dl-link"><i class="ti ti-download" aria-hidden="true"></i>テンプレートDL</a>
   </p>
   <div class="horse-list" id="horse-list"></div>
   <div class="horse-count" id="horse-count"></div>
-  <div class="limit-warn" id="limit-warn" style="display:none">※ 最大5頭まで。超過分は無視されます。</div>
+  <div class="limit-warn" id="limit-warn" style="display:none">※ 最大18頭まで。超過分は無視されます。</div>
 </div>
 
 <div class="err" id="err"></div>
@@ -613,7 +616,12 @@ function tryHeroFallback(img) {
   }
 }
 
-var MAX=5, COLORS=['#2d5fa8','#1d9e75','#d85a30','#7f77dd','#ba7517'];
+var MAX=18, COLORS=[
+  '#2d5fa8','#1d9e75','#d85a30','#7f77dd','#ba7517',
+  '#c0392b','#16a085','#8e44ad','#e67e22','#2c3e50',
+  '#27ae60','#d35400','#2980b9','#f39c12','#7f8c8d',
+  '#6c5ce7','#00b894','#e17055'
+];
 
 function switchTab(tab){
   document.getElementById('page-main').style.display = tab==='main'?'block':'none';
@@ -623,6 +631,7 @@ function switchTab(tab){
 }
 var allHorses=[], visibleHorses=[];
 var courseSort={col:'time',asc:true};
+var cmpSort={col:null,asc:true};
 // フィルター状態：チェックボックスはSet（空=すべて）、距離は数値
 var fState={venues:new Set(),surfaces:new Set(),tracks:new Set(),distMin:'',distMax:''};
 
@@ -790,6 +799,7 @@ function buildHorseChecks(statsList){
   var wrap=document.getElementById('horse-checks-wrap');
   var checks=document.getElementById('horse-checks');
   if(statsList.length<=1){wrap.style.display='none';return;}
+  // 多頭数の場合は折り返し表示
   wrap.style.display='flex';
   checks.innerHTML=statsList.map(function(d){
     var name=d.horse.horseName||('馬'+(d.horse.colorIdx+1));
@@ -893,6 +903,16 @@ function sortIcon(col,active,asc){
   if(!active)return'<span class="si"><i class="ti ti-arrows-sort"></i></span>';
   return'<span class="si" style="color:#2d5fa8">'+(asc?'▲':'▼')+'</span>';
 }
+function cmpSortIcon(col){
+  if(cmpSort.col!==col)return'<span style="font-size:9px;margin-left:2px;color:rgba(26,39,68,.3)">⇅</span>';
+  return'<span style="font-size:9px;margin-left:2px;color:#2d5fa8">'+(cmpSort.asc?'▲':'▼')+'</span>';
+}
+function onCmpSort(col){
+  if(!col)return;
+  if(cmpSort.col===col)cmpSort.asc=!cmpSort.asc;
+  else{cmpSort.col=col;cmpSort.asc=true;}
+  renderResults();
+}
 function onCourseSort(col){
   if(courseSort.col===col)courseSort.asc=!courseSort.asc;
   else{courseSort.col=col;courseSort.asc=true;}
@@ -969,39 +989,77 @@ function courseTblCompare(statsList){
 function renderCmpTbl(statsList){
   var visible=statsList.filter(function(d){return visibleHorses.indexOf(d.horse.colorIdx)!==-1;});
   var metrics=[
-    {key:'f3avg',label:'前半3F 平均タイム',unit:'秒',nKey:'f3n',best:function(a,b){return a<b;}},
-    {key:'l3avg',label:'上り3F 平均タイム',unit:'秒',nKey:'l3n',best:function(a,b){return a<b;}},
-    {key:'coravg',label:'最終コーナー 平均位置',unit:'番手',nKey:'corn',best:function(a,b){return a<b;}},
+    {key:'f3avg',label:'前半3F 平均',unit:'秒',nKey:'f3n',best:function(a,b){return a<b;}},
+    {key:'l3avg',label:'上り3F 平均',unit:'秒',nKey:'l3n',best:function(a,b){return a<b;}},
+    {key:'coravg',label:'最終C 平均位置',unit:'番手',nKey:'corn',best:function(a,b){return a<b;}},
   ];
-  var hRow='<tr><th style="min-width:130px">項目</th>';
-  visible.forEach(function(d){
-    hRow+='<th colspan="2" style="border-left:2px solid '+COLORS[d.horse.colorIdx]+';font-weight:500;font-size:12px">'+
-      '<span style="color:'+COLORS[d.horse.colorIdx]+'">●</span> '+(d.horse.horseName||'馬'+(d.horse.colorIdx+1))+'</th>';
-  });
-  hRow+='</tr>';
 
-  var bodyRows=metrics.map(function(m){
-    // フィルター適用後のrowsで再計算
-    var statsForVisible=visible.map(function(d){
-      var filtered=d.horse.rows.filter(matchFilter);
-      return calcStatsFromRows(filtered);
+  // 各馬のフィルター適用後の統計を計算
+  var statsForVisible=visible.map(function(d){
+    var filtered=d.horse.rows.filter(matchFilter);
+    return calcStatsFromRows(filtered);
+  });
+
+  // ヘッダー行（指標名）- クリックでソート対応
+  var hRow='<tr>'+
+    '<th style="min-width:160px;position:sticky;left:0;background:#dde6f5;z-index:2;cursor:pointer" onclick="onCmpSort('name')" data-k="name">'+
+      '馬名'+cmpSortIcon('name')+'</th>'+
+    metrics.map(function(m){
+      var sk=m.key;
+      return '<th style="text-align:center;min-width:100px;cursor:pointer" onclick="onCmpSort(this.getAttribute('data-k'))" data-k="'+sk+'">'+
+               m.label+cmpSortIcon(sk)+'</th>'+
+             '<th style="text-align:center;min-width:50px;color:var(--tx3);font-weight:400">件数</th>';
+    }).join('')+
+    '</tr>';
+
+  // ソート適用
+  var indexedVisible = visible.map(function(d,i){ return {d:d, st:statsForVisible[i], i:i}; });
+  if(cmpSort.col){
+    indexedVisible.sort(function(a,b){
+      var av, bv;
+      if(cmpSort.col==='name'){
+        av=a.d.horse.horseName||''; bv=b.d.horse.horseName||'';
+        return cmpSort.asc?(av>bv?1:-1):(av<bv?1:-1);
+      }
+      av = a.st[cmpSort.col]; bv = b.st[cmpSort.col];
+      if(av===null&&bv===null)return 0;
+      if(av===null)return 1; if(bv===null)return -1;
+      return cmpSort.asc ? av-bv : bv-av;
     });
-    var vals=statsForVisible.map(function(st){return st[m.key];}).filter(function(v){return v!==null;});
-    var best=vals.length?vals.reduce(function(a,b){return m.best(a,b)?a:b;}):null;
-    var bestCnt=vals.filter(function(v){return v===best;}).length;
-    var row='<tr><td style="font-size:12px;color:var(--tx2)">'+m.label+'</td>';
-    visible.forEach(function(d,i){
-      var st=statsForVisible[i];
+  }
+
+  // 各馬ごとの行
+  var bodyRows=indexedVisible.map(function(item){
+    var d=item.d, i=item.i, st=item.st;
+    var color=COLORS[d.horse.colorIdx];
+    var name=d.horse.horseName||('馬'+(d.horse.colorIdx+1));
+
+    // 各指標のベスト値を求める
+    var row='<tr>'+
+      '<td style="position:sticky;left:0;background:#fff;z-index:1;border-left:3px solid '+color+';padding-left:8px">'+
+        '<span style="display:inline-flex;align-items:center;gap:5px">'+
+          '<span style="width:8px;height:8px;border-radius:50%;background:'+color+';flex-shrink:0;display:inline-block"></span>'+
+          '<span style="font-size:12px;font-weight:600">'+name+'</span>'+
+        '</span>'+
+      '</td>';
+
+    metrics.forEach(function(m){
+      // ベスト判定（全馬の中で最良か）
+      var vals=statsForVisible.map(function(s){return s[m.key];}).filter(function(v){return v!==null;});
+      var best=vals.length?vals.reduce(function(a,b){return m.best(a,b)?a:b;}):null;
+      var bestCnt=vals.filter(function(v){return v===best;}).length;
       var v=st[m.key],n=st[m.nKey];
       var isBest=v!==null&&best!==null&&v===best&&bestCnt<vals.length;
-      row+='<td class="val'+(isBest?' val-best':'')+'" style="border-left:2px solid '+COLORS[d.horse.colorIdx]+'">' +
-        (v!==null?v+'<span style="font-size:11px;font-weight:400;color:var(--tx2);margin-left:2px">'+m.unit+'</span>':'<span style="color:var(--tx3)">—</span>')+
-        '</td><td class="sub">'+(n?n+'R':'')+'</td>';
+      row+='<td style="text-align:center" class="val'+(isBest?' val-best':'')+'">'+
+        (v!==null?'<span style="font-size:15px;font-weight:500">'+v+'</span><span style="font-size:10px;color:var(--tx2);margin-left:1px">'+m.unit+'</span>':'<span style="color:var(--tx3)">—</span>')+
+        '</td>'+
+        '<td style="text-align:center;font-size:10px;color:var(--tx3)">'+(n?n+'R':'')+'</td>';
     });
-    return row+'</tr>';
+    row+='</tr>';
+    return row;
   }).join('');
 
-  // フィルターが適用されているか確認してノートを更新
+  // フィルター適用中ノート
   var active=fState.venues.size>0||fState.surfaces.size>0||fState.tracks.size>0||fState.distMin||fState.distMax;
   var note=document.getElementById('cmp-note');
   if(note)note.style.display=active?'flex':'none';
