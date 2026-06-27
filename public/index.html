@@ -515,6 +515,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 </div>
 
 <div class="err" id="err"></div>
+<div id="debug-log" style="display:none;background:#f0f3fa;border:1px solid #2d5fa8;border-radius:8px;padding:10px 14px;font-size:11px;font-family:monospace;color:#1a2744;margin-bottom:8px;max-height:150px;overflow-y:auto;line-height:1.8"></div>
 <div class="brow">
   <button class="btn btn-primary" onclick="doAnalyze()"><i class="ti ti-chart-bar" aria-hidden="true"></i>分析する</button>
   <button class="btn btn-ghost" onclick="doClearAll()">すべてクリア</button>
@@ -647,36 +648,53 @@ function onDragArea(e,over){e.preventDefault();document.getElementById('upload-a
 function onDropArea(e){e.preventDefault();document.getElementById('upload-area').classList.remove('drag');loadFiles(Array.from(e.dataTransfer.files));}
 function onFileArea(e){loadFiles(Array.from(e.target.files));document.getElementById('file-input').value='';}
 
+function dbg(msg){
+  var el=document.getElementById('debug-log');
+  if(!el)return;
+  el.style.display='block';
+  el.innerHTML+='<div>'+msg+'</div>';
+  el.scrollTop=el.scrollHeight;
+}
+
 function loadFiles(files){
+  dbg('loadFiles開始: '+files.length+'ファイル');
   var skipped=0;
-  files.forEach(function(file){
-    if(allHorses.length>=MAX)return;
+  Array.from(files).forEach(function(file){
+    dbg('ファイル: '+file.name+' ('+Math.round(file.size/1024)+'KB)');
+    if(allHorses.length>=MAX){dbg('上限到達('+MAX+'頭)');return;}
     var reader=new FileReader();
     reader.onload=function(e){
       try{
+        dbg('FileReader完了');
+        if(typeof XLSX==='undefined'){dbg('★XLSXライブラリ未ロード');setErr('XLSXライブラリが読み込まれていません。ページを再読み込みしてください。');return;}
         var wb=XLSX.read(e.target.result,{type:'array'});
+        dbg('Excelパース成功: '+wb.SheetNames.length+'シート');
         var addedFromFile=0;
         wb.SheetNames.forEach(function(sn){
           if(allHorses.length>=MAX)return;
           var ws=wb.Sheets[sn];
-          // セルが空のシートはスキップ
           var ref=ws['!ref'];
+          dbg('シート「'+sn+'」ref='+ref);
           if(!ref)return;
           var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
           var parsed=parseSheet(rows);
-          // 馬名またはデータ行があるシートを対象とする
-          if(!parsed.rows.length && !parsed.horseName)return;
+          dbg('  馬名=「'+parsed.horseName+'」 データ行='+parsed.rows.length);
+          if(!parsed.rows.length && !parsed.horseName){dbg('  →スキップ');return;}
           parsed.colorIdx=allHorses.length;
           allHorses.push(parsed);
           addedFromFile++;
+          dbg('  →追加(計'+allHorses.length+'頭)');
         });
         if(allHorses.length>=MAX && addedFromFile===0)skipped++;
         renderHorseList();
+        dbg('renderHorseList完了');
         setErr(skipped>0?'一部のシートは最大18頭の上限により読み込まれませんでした。':'');
       }catch(err){
+        dbg('★エラー: '+err.message);
         setErr('読み込みエラー（'+file.name+'）: '+err.message);
       }
     };
+    reader.onerror=function(){dbg('★FileReaderエラー');setErr('ファイルの読み込みに失敗しました。');};
     reader.readAsArrayBuffer(file);
   });
 }
@@ -1151,6 +1169,7 @@ function doAnalyze(){
 }
 // ── 初期化 ──
 document.addEventListener('DOMContentLoaded', function(){
+  dbg('DOMContentLoaded発火');
   // 分析タブをアクティブに
   document.getElementById('page-main').style.display = 'block';
   document.getElementById('page-help').style.display = 'none';
@@ -1160,9 +1179,10 @@ document.addEventListener('DOMContentLoaded', function(){
   var inp = document.getElementById('file-input');
   if(inp){
     inp.addEventListener('change', function(e){
+      dbg('changeイベント発火: files='+(e.target.files?e.target.files.length:0));
       if(e.target.files && e.target.files.length > 0){
         loadFiles(Array.from(e.target.files));
-        e.target.value = ''; // 同じファイルを再度選択できるようリセット
+        e.target.value = '';
       }
     });
   }
