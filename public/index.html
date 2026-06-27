@@ -482,7 +482,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 <!-- サイト紹介 -->
 <div class="intro-section">
   <div class="intro-catch">データで、馬を見る目が変わる。</div>
-  <p class="intro-body">競馬の成績データをネット競馬からコピー＆ペーストするだけで、前半3F・上り3F・最終コーナー位置取りの平均値と、コース・距離別の最速タイムを自動集計します。最大18頭まで同時に比較できるので、出走馬の特徴や得意条件を一目で把握できます。</p>
+  <p class="intro-body">競馬の成績データをネット競馬からコピー＆ペーストするだけで、前半3F・上り3F・最終コーナー位置取りの平均値と、コース・距離別の最速タイムを自動集計します。最大5頭まで同時に比較できるので、出走馬の特徴や得意条件を一目で把握できます。</p>
   <div class="intro-targets">
     <div class="intro-target"><i class="ti ti-check-circle" aria-hidden="true"></i>出走馬の成績をデータで整理したい方</div>
     <div class="intro-target"><i class="ti ti-check-circle" aria-hidden="true"></i>複数の馬を条件別に比較して検討したい方</div>
@@ -641,22 +641,34 @@ function onDropArea(e){e.preventDefault();document.getElementById('upload-area')
 function onFileArea(e){loadFiles(Array.from(e.target.files));document.getElementById('file-input').value='';}
 
 function loadFiles(files){
+  var skipped=0;
   files.forEach(function(file){
     if(allHorses.length>=MAX)return;
     var reader=new FileReader();
     reader.onload=function(e){
       try{
         var wb=XLSX.read(e.target.result,{type:'array'});
+        var addedFromFile=0;
         wb.SheetNames.forEach(function(sn){
           if(allHorses.length>=MAX)return;
-          var rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:''});
+          var ws=wb.Sheets[sn];
+          // セルが空のシートはスキップ
+          var ref=ws['!ref'];
+          if(!ref)return;
+          var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
           var parsed=parseSheet(rows);
-          if(!parsed.rows.length)return;
+          // 馬名またはデータ行があるシートを対象とする
+          if(!parsed.rows.length && !parsed.horseName)return;
           parsed.colorIdx=allHorses.length;
           allHorses.push(parsed);
+          addedFromFile++;
         });
-        renderHorseList();setErr('');
-      }catch(err){setErr('読み込みエラー: '+err.message);}
+        if(allHorses.length>=MAX && addedFromFile===0)skipped++;
+        renderHorseList();
+        setErr(skipped>0?'一部のシートは最大18頭の上限により読み込まれませんでした。':'');
+      }catch(err){
+        setErr('読み込みエラー（'+file.name+'）: '+err.message);
+      }
     };
     reader.readAsArrayBuffer(file);
   });
@@ -670,7 +682,7 @@ function parseSheet(sheetRows){
     for(var ci3=18;ci3<=27;ci3++){if(String(sheetRows[1][ci3]||'').trim()){motherName=String(sheetRows[1][ci3]).trim();break;}}
   }
   var headerRow=-1;
-  for(var ri=0;ri<Math.min(sheetRows.length,10);ri++){
+  for(var ri=0;ri<Math.min(sheetRows.length,20);ri++){
     var rs=(sheetRows[ri]||[]).join('');
     if(rs.indexOf('日付')!==-1||rs.indexOf('レース名')!==-1){headerRow=ri;break;}
   }
@@ -683,7 +695,8 @@ function parseSheet(sheetRows){
   var rows=[];
   for(var ri2=headerRow+1;ri2<sheetRows.length;ri2++){
     var row=sheetRows[ri2]||[];
-    if(row.join('').replace(/#VALUE!/g,'').trim()==='')continue;
+    var rowStr=row.join('').replace(/#VALUE!/g,'').replace(/0/g,'').trim();
+    if(rowStr==='')continue;
     var rawT=iTime>=0?row[iTime]:'',timeStr='';
     if(rawT&&!isNaN(rawT)&&parseFloat(rawT)<1){
       var ts=parseFloat(rawT)*86400,m=Math.floor(ts/60),s=(ts-m*60).toFixed(1);
