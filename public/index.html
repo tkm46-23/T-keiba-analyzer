@@ -58,6 +58,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 .upload-area i{font-size:30px;color:var(--tx3);display:block;margin-bottom:8px}
 .upload-area .ut{font-size:13px;font-weight:500;color:var(--tx);margin-bottom:3px}
 .upload-area .us{font-size:11px;color:var(--tx3)}
+.upload-btn{margin-top:10px;padding:6px 16px;font-size:12px;font-weight:500;background:#1a2744;color:#fff;border:none;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:inherit}
+.upload-btn:hover{background:#243460}
 .dl-link{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#2d5fa8;text-decoration:none;padding:4px 10px;border:.5px solid var(--bd2);border-radius:var(--r);margin-top:6px;transition:background .15s}
 .dl-link:hover{background:var(--bbg)}
 .horse-list{display:flex;flex-direction:column;gap:6px;margin-top:10px}
@@ -492,12 +494,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sa
 
 <div class="card">
   <p class="slbl">Excelファイルをアップロード（複数シート対応・最大18頭まで）</p>
+  <!-- 非表示のfile input（アップロードエリアの外に配置） -->
+  <input type="file" accept=".xlsx,.xls" multiple id="file-input" style="display:none">
   <div class="upload-area" id="upload-area"
-    ondragover="onDragArea(event,true)" ondragleave="onDragArea(event,false)" ondrop="onDropArea(event)">
-    <input type="file" accept=".xlsx,.xls" multiple onchange="onFileArea(event)" id="file-input">
+    ondragover="onDragArea(event,true)" ondragleave="onDragArea(event,false)" ondrop="onDropArea(event)"
+    onclick="document.getElementById('file-input').click()">
     <i class="ti ti-cloud-upload" aria-hidden="true"></i>
     <div class="ut">Excelファイルをドラッグ＆ドロップ（複数ファイル可）</div>
     <div class="us">1ファイル内の複数シート＝複数頭として読み込み ／ 合計最大18頭</div>
+    <button type="button" class="upload-btn" onclick="event.stopPropagation();document.getElementById('file-input').click()">
+      <i class="ti ti-folder-open" aria-hidden="true"></i>ファイルを選択
+    </button>
   </div>
   <p style="font-size:11px;color:var(--tx3)">テンプレート →
     <a href="keiba_1頭検索_テンプレート.xlsx" download class="dl-link"><i class="ti ti-download" aria-hidden="true"></i>テンプレートDL</a>
@@ -1149,12 +1156,14 @@ document.addEventListener('DOMContentLoaded', function(){
   document.getElementById('page-help').style.display = 'none';
   document.getElementById('tab-main').classList.add('on');
   document.getElementById('tab-help').classList.remove('on');
-  // アップロードエリアのクリックを確実に動作させる
-  var zone = document.getElementById('upload-area');
-  var inp  = document.getElementById('file-input');
-  if(zone && inp){
-    zone.addEventListener('click', function(e){
-      if(e.target !== inp) inp.click();
+  // file inputのchangeイベントをJSでバインド（onchange属性より確実）
+  var inp = document.getElementById('file-input');
+  if(inp){
+    inp.addEventListener('change', function(e){
+      if(e.target.files && e.target.files.length > 0){
+        loadFiles(Array.from(e.target.files));
+        e.target.value = ''; // 同じファイルを再度選択できるようリセット
+      }
     });
   }
 });
