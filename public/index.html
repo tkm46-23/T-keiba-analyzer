@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マイ競馬リサーチ</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a2744;--bg:#fff;--bg2:#f4f6fb;--bg3:#eef0f7;
+  --tx:#1a2744;--tx2:#4a5578;--tx3:#374060;
+  --bd:rgba(26,39,68,.12);--bd2:rgba(26,39,68,.22);
+  --gbg:#e8f5ee;--gtx:#0f6e56;
+  --rbg:#fceaea;--rtx:#8c1f1f;
+  --bbg:#e8eef8;
+  --r:8px;--rl:12px;
+  --c0:#2d5fa8;--c1:#1d9e75;--c2:#d85a30;--c3:#7f77dd;--c4:#ba7517;
+}
+
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif;font-size:14px;line-height:1.6;color:var(--tx);background:var(--bg3);min-height:100vh}
+.hdr{background:#1a2744;padding:0 24px;height:54px;display:flex;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(255,255,255,.08)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center}
+.logo-mark i{font-size:16px;color:#fff}
+.logo-text{font-size:15px;font-weight:500;color:#fff;letter-spacing:.02em}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:1px}
+.main{max-width:960px;margin:0 auto;padding:24px 16px}
+.card{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:1rem 1.2rem;margin-bottom:.9rem}
+.slbl{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--tx3);padding-bottom:7px;border-bottom:.5px solid var(--bd);margin-bottom:12px}
+.brow{display:flex;gap:8px;align-items:center;margin-top:1rem;flex-wrap:wrap}
+.btn{padding:9px 22px;font-size:13px;font-weight:500;border-radius:var(--r);cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:background .15s;font-family:inherit}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:#1a2744;color:#fff;border:none}.btn-primary:hover{background:#243460}
+.btn-ghost{background:var(--bg);color:var(--tx2);border:.5px solid var(--bd2)}.btn-ghost:hover{background:var(--bg2)}
+.err{display:none;background:var(--rbg);border:.5px solid var(--bd);border-radius:var(--r);padding:.75rem 1rem;font-size:12px;color:var(--rtx);margin-bottom:.8rem}.err.on{display:block}
+.upload-area{border:2px dashed var(--bd2);border-radius:var(--rl);padding:24px 16px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative;background:var(--bg2);margin-bottom:10px}
+.upload-area:hover,.upload-area.drag{border-color:#2d5fa8;background:var(--bbg)}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-area i{font-size:30px;color:var(--tx3);display:block;margin-bottom:8px}
+.upload-area .ut{font-size:13px;font-weight:500;color:var(--tx);margin-bottom:3px}
+.upload-area .us{font-size:11px;color:var(--tx3)}
+.dl-link{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#2d5fa8;text-decoration:none;padding:4px 10px;border:.5px solid var(--bd2);border-radius:var(--r);margin-top:6px;transition:background .15s}
+.dl-link:hover{background:var(--bbg)}
+.horse-list{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.horse-item{display:flex;align-items:center;gap:8px;padding:8px 11px;background:var(--bg2);border-radius:var(--r);border:.5px solid var(--bd)}
+.horse-color{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.horse-item-name{font-size:12px;font-weight:600;flex:1}
+.horse-item-meta{font-size:11px;color:var(--tx3)}
+.horse-item-del{background:none;border:none;color:var(--tx3);cursor:pointer;padding:2px 4px;font-size:14px;line-height:1}
+.horse-item-del:hover{color:var(--rtx)}
+.horse-count{font-size:11px;color:var(--tx2);margin-top:6px}
+.limit-warn{font-size:11px;color:var(--rtx);margin-top:4px}
+.mode-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:100px;font-size:11px;font-weight:600;margin-bottom:.9rem}
+.mode-single{background:#e8eef8;color:#1a2744;border:.5px solid rgba(26,39,68,.15)}
+.mode-compare{background:var(--gbg);color:var(--gtx);border:.5px solid rgba(15,110,86,.2)}
+
+
+/* ── フィルターパネル ── */
+.filter-panel{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--rl);padding:0;margin-bottom:.9rem;overflow:hidden}
+.filter-panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;border-bottom:.5px solid var(--bd);cursor:pointer;user-select:none}
+.filter-panel-hdr:hover{background:var(--bg2)}
+.filter-panel-title{font-size:12px;font-weight:500;color:var(--tx);display:flex;align-items:center;gap:5px}
+.filter-panel-title i{font-size:14px;color:var(--tx3)}
+.filter-panel-actions{display:flex;align-items:center;gap:8px}
+.filter-active-badge{font-size:10px;padding:2px 7px;border-radius:100px;background:#2d5fa8;color:#fff;font-weight:500}
+.filter-toggle-icon{font-size:14px;color:var(--tx3);transition:transform .2s}
+.filter-toggle-icon.open{transform:rotate(180deg)}
+.filter-body{display:none;padding:.9rem 1rem;flex-direction:column;gap:12px}
+.filter-body.open{display:flex}
+.filter-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.filter-col{display:flex;flex-direction:column;gap:5px;min-width:100px}
+.filter-col-wide{min-width:160px}
+.filter-col-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);margin-bottom:2px}
+.cb-group{display:flex;flex-wrap:wrap;gap:4px}
+.cb-item{display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;border:.5px solid var(--bd2);background:var(--bg2);cursor:pointer;transition:background .12s,border-color .12s;user-select:none;font-size:11px;color:var(--tx2)}
+.cb-item input{display:none}
+.cb-item.checked{background:#2d5fa8;border-color:#2d5fa8;color:#fff}
+.cb-item:hover:not(.checked){background:var(--bbg);border-color:#2d5fa8}
+.range-row{display:flex;align-items:center;gap:5px}
+.range-input{width:70px;font-size:11px;padding:4px 7px;border:.5px solid var(--bd2);border-radius:6px;background:var(--bg);color:var(--tx);outline:none;font-family:inherit}
+.range-input:focus{border-color:#2d5fa8}
+.range-sep{font-size:11px;color:var(--tx3)}
+.hcheck{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600;cursor:pointer;color:#fff;transition:opacity .15s}
+.hcheck input{display:none}
+.hcheck.off{opacity:.35}
+.filter-footer{display:flex;align-items:center;justify-content:space-between;padding:.6rem 1rem;border-top:.5px solid var(--bd);background:var(--bg2)}
+.filter-summary{font-size:11px;color:var(--tx3)}
+.filter-rst{padding:4px 12px;font-size:11px;border:.5px solid var(--bd);border-radius:var(--r);background:var(--bg);color:var(--tx2);cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px}
+.filter-rst:hover{background:var(--bg2)}
+
+.section-title{font-size:13px;font-weight:500;color:var(--tx);display:flex;align-items:center;gap:6px;padding:.8rem 0 .4rem;border-bottom:.5px solid var(--bd);margin-bottom:.9rem}
+.section-title i{font-size:15px;color:var(--tx3)}
+.horse-header{padding:0 0 .9rem;border-bottom:.5px solid var(--bd);margin-bottom:1rem}
+.horse-name{font-size:24px;font-weight:500;letter-spacing:.01em}
+.horse-lineage{font-size:12px;color:var(--tx3);margin-top:3px}
+.mg3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+@media(max-width:500px){.mg3{grid-template-columns:1fr 1fr}}
+.mc{background:var(--bg2);border-radius:var(--r);padding:.85rem 1rem;border:.5px solid var(--bd)}
+.mclb{font-size:10px;color:var(--tx3);margin-bottom:5px;line-height:1.4;letter-spacing:.03em}
+.mcv{font-size:22px;font-weight:500;color:var(--navy);line-height:1}
+.mcu{font-size:12px;font-weight:400;color:var(--tx2);margin-left:2px}
+.mc-sub{font-size:10px;color:var(--tx3);margin-top:4px}
+.cmp-wrap{overflow-x:auto;margin-bottom:.9rem}
+.cmp-tbl{border-collapse:collapse;font-size:13px;min-width:100%}
+.cmp-tbl th{padding:8px 10px;border:.5px solid var(--bd);font-size:11px;font-weight:500;color:var(--tx2);background:var(--bg2);white-space:nowrap;text-align:left}
+.cmp-tbl td{padding:8px 10px;border:.5px solid var(--bd);white-space:nowrap}
+.cmp-tbl .val{font-size:16px;font-weight:500;text-align:right;color:var(--navy)}
+.cmp-tbl .val-best{color:#0f6e56}
+.cmp-tbl .sub{font-size:10px;color:var(--tx3);text-align:right}
+.cmp-tbl tr:nth-child(even) td{background:var(--bg2)}
+.cmp-note{font-size:11px;color:var(--tx3);margin-bottom:.5rem;display:flex;align-items:center;gap:4px}
+.course-wrap{overflow-x:auto;margin-bottom:.9rem}
+.course-tbl{border-collapse:collapse;font-size:12px;min-width:100%}
+.course-tbl th{background:var(--bg2);color:var(--tx2);padding:6px 9px;border:.5px solid var(--bd);white-space:nowrap;font-size:11px;font-weight:500;cursor:pointer;user-select:none}
+.course-tbl th:hover{background:var(--bbg)}
+.course-tbl th .si{font-size:10px;margin-left:2px;color:var(--tx3)}
+.course-tbl td{padding:7px 9px;border:.5px solid var(--bd);white-space:nowrap;color:var(--tx)}
+.course-tbl tr:nth-child(even) td{background:var(--bg2)}
+.course-tbl tr:hover td{background:var(--bbg)}
+.horse-tag{display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:600;color:#fff}
+.f1{color:#d4900a;font-weight:700}.f2{color:#1a5ca8;font-weight:600}.f3{color:#854f0b;font-weight:600}
+.no-data{text-align:center;padding:24px;color:var(--tx3);font-size:12px}
+.snote{font-size:11px;color:var(--tx3);padding-top:.9rem;border-top:.5px solid var(--bd);display:flex;align-items:flex-start;gap:4px;margin-top:.9rem;line-height:1.5}
+.hero-wrap{max-width:960px;margin:24px auto 0;padding:0 16px}
+.hero-img{width:100%;height:auto;display:block;border-radius:var(--rl)}
+.hero-desc{max-width:960px;margin:0 auto;padding:14px 24px;font-size:13px;color:var(--tx2);line-height:1.7;text-align:center}
+
+/* 対比テーブルソート */
+.cmp-tbl .sortable-row{cursor:pointer;user-select:none}
+.cmp-tbl .sortable-row:hover td:first-child{background:var(--bbg)}
+.cmp-sort-icon{font-size:10px;margin-left:4px;color:var(--tx3)}
+.cmp-sort-icon.active{color:#2d5fa8}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="logo">
+    <div class="logo-mark"><img src="favicon.png" alt="ロゴ" style="width:24px;height:24px;border-radius:5px;display:block;"></div>
+    <div>
+      <div class="logo-text">マイ競馬リサーチ</div>
+      <div class="logo-sub">Race Horse Analyzer</div>
+    </div>
+  </div>
+</header>
+<div class="hero-wrap" id="hero-img">
+<img src="hero.JPG" alt="競馬場の風景" class="hero-img">
+</div>
+<div class="hero-desc" id="hero-desc">netkeibaの成績データをExcelでアップロードするだけ。複数頭をまとめて比較・分析できる、競馬ファンのための無料ツールです。</div>
+
+<section id="howto-section" style="background:#f8f8f6;padding:32px 0 24px;">
+  <div style="max-width:960px;margin:0 auto;padding:0 16px;">
+    <div style="text-align:center;margin-bottom:18px;">
+      <p style="font-size:12px;font-weight:600;color:#2d5fa8;letter-spacing:.1em;margin:0 0 6px;text-transform:uppercase;">HOW TO USE</p>
+      <h2 style="font-size:20px;font-weight:600;color:#1a2744;margin:0 0 8px;">かんたん4ステップで分析スタート</h2>
+      <p style="font-size:13px;color:#607090;margin:0;">netkeibaのデータをそのまま使えます。難しい操作は一切ありません。</p>
+    </div>
+
+    <div style="display:flex;justify-content:center;gap:4px;margin-bottom:18px;">
+      <div id="howto-tab-excel" onclick="switchHowtoTab('excel')" style="padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;color:#a0a8bc;border-bottom:2px solid transparent;margin-bottom:-1px;">Excelアップロード版</div>
+      <div id="howto-tab-text" onclick="switchHowtoTab('text')" style="padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;color:#2d5fa8;border-bottom:2px solid #2d5fa8;margin-bottom:-1px;">テキスト貼り付け版</div>
+    </div>
+
+    <div id="howto-pane-excel" style="display:none;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;">
+      <div class="howto-card" data-step="1" data-title="成績をコピー" data-desc="netkeibaの競走成績の枠内をテキストコピーしてください。成績部分だけでOKです。空欄があっても気にしなくてOKです。" style="background:#fff;border:1px solid #e0e4ee;border-radius:10px;overflow:hidden;cursor:pointer;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(45,95,168,.18)'" onmouseout="this.style.boxShadow=''">
+        <img src="slides/slide-1.jpg" alt="ステップ1：netkeibaの成績をコピー" style="width:100%;display:block;border-bottom:1px solid #e0e4ee;">
+        <div style="padding:12px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="width:24px;height:24px;border-radius:50%;background:#e8eef8;color:#2d5fa8;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+            <span style="font-size:13px;font-weight:600;color:#1a2744;">成績をコピー</span>
+          </div>
+          <p style="font-size:11px;color:#607090;margin:0;line-height:1.7;">netkeibaの競走成績の枠内をテキストコピーしてください。成績部分だけでOKです。空欄があっても気にしなくてOKです。</p>
+        </div>
+      </div>
+      <div class="howto-card" data-step="2" data-title="フォーマットに貼り付け" data-desc="テンプレートに馬名等を入力し、貼り付け先の書式に合わせる形式で貼り付けてください。数値は文字列形式で貼り付けてください。" style="background:#fff;border:1px solid #e0e4ee;border-radius:10px;overflow:hidden;cursor:pointer;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(45,95,168,.18)'" onmouseout="this.style.boxShadow=''">
+        <img src="slides/slide-2.jpg" alt="ステップ2：フォーマットに貼り付け" style="width:100%;display:block;border-bottom:1px solid #e0e4ee;">
+        <div style="padding:12px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="width:24px;height:24px;border-radius:50%;background:#e8eef8;color:#2d5fa8;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+            <span style="font-size:13px;font-weight:600;color:#1a2744;">フォーマットに貼り付け</span>
+          </div>
+          <p style="font-size:11px;color:#607090;margin:0;line-height:1.7;">テンプレートに馬名等を入力し、「貼り付け先の書式に合わせる」形式で貼り付けてください。数値は「文字列」形式で貼り付けてください。</p>
+        </div>
+      </div>
+      <div class="howto-card" data-step="3" data-title="アップロード" data-desc="ファイルを保存し、点線エリアにドラッグ＆ドロップ。馬名等が正しく表示されたら「分析する」ボタンをクリックしてください。" style="background:#fff;border:1px solid #e0e4ee;border-radius:10px;overflow:hidden;cursor:pointer;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(45,95,168,.18)'" onmouseout="this.style.boxShadow=''">
+        <img src="slides/slide-3.jpg" alt="ステップ3：アップロード" style="width:100%;display:block;border-bottom:1px solid #e0e4ee;">
+        <div style="padding:12px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="width:24px;height:24px;border-radius:50%;background:#e8eef8;color:#2d5fa8;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+            <span style="font-size:13px;font-weight:600;color:#1a2744;">アップロード</span>
+          </div>
+          <p style="font-size:11px;color:#607090;margin:0;line-height:1.7;">ファイルを保存し、点線エリアにドラッグ＆ドロップ。馬名等が正しく表示されたら「分析する」ボタンをクリックしてください。</p>
+        </div>
+      </div>
+      <div class="howto-card" data-step="4" data-title="分析結果を確認" data-desc="分析結果が表示されます。前半3F・上り3F・コーナー位置のほか、コース別の最速タイムも確認できます。" style="background:#fff;border:1px solid #e0e4ee;border-radius:10px;overflow:hidden;cursor:pointer;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(45,95,168,.18)'" onmouseout="this.style.boxShadow=''">
+        <img src="slides/slide-4.jpg" alt="ステップ4：分析結果を確認" style="width:100%;display:block;border-bottom:1px solid #e0e4ee;">
+        <div style="padding:12px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="width:24px;height:24px;border-radius:50%;background:#e8eef8;color:#2d5fa8;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
+            <span style="font-size:13px;font-weight:600;color:#1a2744;">分析結果を確認</span>
+          </div>
+          <p style="font-size:11px;color:#607090;margin:0;line-height:1.7;">分析結果が表示されます。前半3F・上り3F・コーナー位置のほか、コース別の最速タイムも確認できます。</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="howto-pane-text" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;">
+      <div class="howto-card" data-step="1" data-title="タブを切り替え" data-desc="アップロードエリア上部の「テキスト貼り付け」タブをクリックします。" data-mock="tab" style="background:#fff;border:1px solid #e0e4ee;border-radius:10px;overflow:hidden;cursor:pointer;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(45,95,168,.18)'" onmouseout="this.style.boxShadow=''">
+        <div style="padding:18px 14px 6px;background:#f8f8f6;">
+          <div style="background:#fff;border-radius:6px;border:1px solid #e0e4ee;overflow:hidden;">
+            <div style="display:flex;gap:4px;border-bottom:1px solid #e0e4ee;padding:0 8px;">
+              <div style="padding:8px 10px;font-size:10px;color:#a0a8bc;">Excelアップロード</div>
+              <div style="padding:8px 10px;font-size:10px;font-weight:600;color:#2d5fa8;border-bottom:2px solid #2d5fa8;margin-bottom:-1px;">テキスト貼り付け</div>
+            </div>
+            <div style="padding:14px;"></div>
+          </div>
+        </div>
+        <div style="padding:12px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="width:24px;height:24px;border-radius:50%;background:#e8eef8;color:#2d5fa8;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</span>
+            <span style="font-size:13px;font-weight:600;color:#1a2744;">タブを切り替え</span>
+          </div>
+          <p style="font-size:11px;color:#607090;margin:0;line-height:1.7;">アップロードエリア上部の「テキスト貼り付け」タブをクリックします。</p>
+        </div>
+      </div>
+
+      <div class="howto-card" data-step="2" data-title="馬名を入力" data-desc="netkeibaのページ見出しにある馬名を、そのまま入力欄に入力します。" style="background:#fff;border:1px solid #e0e4ee;border-radius:10px;overflow:hidden;cursor:pointer;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(45,95,168,.18)'" onmouseout="this.style.boxShadow=''">
+        <div style="padding:18px 14px 6px;background:#f8f8f6;">
+          <div style="background:#fff;border-radius:6px;border:1px solid #e0e4ee;padding:10px;">
+            <div style="font-size:9px;color:#a0a8bc;margin-bottom:4px;">馬名</div>
+            <div style="background:#f8f8f6;border:1px solid #d8dce6;border-radius:5px;padding:6px 8px;font-size:10px;color:#c0c4d0;">例：ダノンデサイル</div>
+          </div>
+        </div>
+        <div style="padding:12px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="width:24px;height:24px;border-radius:50%;background:#e8eef8;color:#2d5fa8;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</span>
+            <span style="font-size:13px;font-weight:600;color:#1a2744;">馬名を入力</span>
+          </div>
+          <p style="font-size:11px;color:#607090;margin:0;line-height:1.7;">netkeibaのページ見出しにある馬名を、そのまま入力欄に入力します。</p>
+        </div>
+      </div>
+
+      <div class="howto-card" data-step="3" data-title="成績データを貼り付け" data-desc="netkeibaの成績表から見出し行（日付・開催・天気…賞金）を除いた、各レースのデータ行だけを選択してコピーし、テキストエリアに貼り付けます。" style="background:#fff;border:1px solid #e0e4ee;border-radius:10px;overflow:hidden;cursor:pointer;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(45,95,168,.18)'" onmouseout="this.style.boxShadow=''">
+        <div style="padding:18px 14px 6px;background:#f8f8f6;display:flex;justify-content:center;">
+          <i class="ti ti-clipboard-text" style="font-size:32px;color:#8896b8;" aria-hidden="true"></i>
+        </div>
+        <div style="padding:12px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="width:24px;height:24px;border-radius:50%;background:#e8eef8;color:#2d5fa8;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</span>
+            <span style="font-size:13px;font-weight:600;color:#1a2744;">成績データを貼り付け</span>
+          </div>
+          <p style="font-size:11px;color:#607090;margin:0;line-height:1.7;">成績表から見出し行を除いたデータ行だけを選択してコピーし、テキストエリアに貼り付けます。</p>
+        </div>
+      </div>
+
+      <div class="howto-card" data-step="4" data-title="内容を追加" data-desc="ボタンを押すと馬名が一覧に追加されます。続けて他の馬も同じ手順で追加できます（最大5頭まで、Excelアップロードと併用可）。" style="background:#fff;border:1px solid #e0e4ee;border-radius:10px;overflow:hidden;cursor:pointer;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(45,95,168,.18)'" onmouseout="this.style.boxShadow=''">
+        <div style="padding:18px 14px 6px;background:#f8f8f6;display:flex;justify-content:center;">
+          <div style="background:#1a2744;color:#fff;font-size:11px;padding:7px 14px;border-radius:6px;display:flex;align-items:center;gap:5px;">
+            <i class="ti ti-plus" style="font-size:13px;" aria-hidden="true"></i>この内容を追加
+          </div>
+        </div>
+        <div style="padding:12px 14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="width:24px;height:24px;border-radius:50%;background:#e8eef8;color:#2d5fa8;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</span>
+            <span style="font-size:13px;font-weight:600;color:#1a2744;">内容を追加</span>
+          </div>
+          <p style="font-size:11px;color:#607090;margin:0;line-height:1.7;">ボタンを押すと馬名が一覧に追加されます。最大5頭まで、Excelアップロードと併用できます。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<main class="main">
+
+<!-- =====================================================
+     広告スペース B（HOW TO USE の下・アップロードエリアの上）
+     ここにアフィリエイトバナーまたはAdSenseコードを貼り付けてください
+     ====================================================== -->
+<div id="ad-space-b" style="max-width:960px;margin:0 auto 8px;padding:0 16px;text-align:center;">
+  <!-- 広告コードをここに貼り付け（例: <a href="..."><img src="..." width="728" height="90"></a>） -->
+</div>
+<!-- =====================================================
+     広告スペース B ここまで
+     ====================================================== -->
+
+<div class="card">
+  <div style="display:flex;gap:4px;margin-bottom:12px;border-bottom:0.5px solid var(--bd);">
+    <div id="tab-excel" onclick="switchUploadTab('excel')" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;color:var(--tx3);border-bottom:2px solid transparent;margin-bottom:-1px;">Excelアップロード</div>
+    <div id="tab-text" onclick="switchUploadTab('text')" style="padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;color:#2d5fa8;border-bottom:2px solid #2d5fa8;margin-bottom:-1px;">テキスト貼り付け</div>
+  </div>
+
+  <div id="pane-excel" style="display:none">
+    <p class="slbl">Excelファイルをアップロード（複数シート対応・最大5頭まで）</p>
+    <div class="upload-area" id="upload-area"
+      ondragover="onDragArea(event,true)" ondragleave="onDragArea(event,false)" ondrop="onDropArea(event)">
+      <input type="file" accept=".xlsx,.xls" multiple onchange="onFileArea(event)" id="file-input">
+      <i class="ti ti-cloud-upload" aria-hidden="true"></i>
+      <div class="ut">Excelファイルをドラッグ＆ドロップ（複数ファイル可）</div>
+      <div class="us">1ファイル内の複数シート＝複数頭として読み込み ／ 合計最大5頭</div>
+    </div>
+    <p style="font-size:11px;color:var(--tx3)">テンプレート →
+      <a href="keiba_1頭検索_テンプレート.xlsx" download class="dl-link"><i class="ti ti-download" aria-hidden="true"></i>テンプレートDL</a>
+    </p>
+  </div>
+
+  <div id="pane-text">
+    <p class="slbl">netkeibaの成績データを貼り付け</p>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px;font-weight:500;color:var(--tx2);display:block;margin-bottom:4px;">馬名</label>
+      <input type="text" id="text-horse-name" placeholder="例：ダノンデサイル" style="width:100%;border:1px solid var(--bd2);border-radius:var(--r);padding:8px 12px;font-size:13px;font-family:inherit;color:var(--tx);">
+    </div>
+    <div>
+      <label style="font-size:12px;font-weight:500;color:var(--tx2);display:block;margin-bottom:4px;">成績データ（見出し行なし・データ行のみ貼り付け）</label>
+      <p style="font-size:11px;color:var(--tx3);margin-bottom:6px;">netkeibaの成績表から「日付・開催・天気…賞金」の見出し行を除いた、各レースのデータ行だけを選択してコピーし、下のボックスに貼り付けてください</p>
+      <textarea id="text-paste-area" placeholder="ここに成績データ（行ごとのレース結果）を貼り付けてください" style="width:100%;min-height:140px;border:1px solid var(--bd2);border-radius:var(--r);padding:10px 12px;font-size:12px;font-family:inherit;resize:vertical;color:var(--tx);"></textarea>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">
+      <button class="btn btn-primary" onclick="addFromTextPaste()" style="padding:7px 16px;font-size:12px;"><i class="ti ti-plus" aria-hidden="true"></i>この内容を追加</button>
+      <span id="text-paste-msg" style="font-size:11px;color:var(--tx3);"></span>
+    </div>
+  </div>
+
+  <div class="horse-list" id="horse-list"></div>
+  <div class="horse-count" id="horse-count"></div>
+  <div class="limit-warn" id="limit-warn" style="display:none">※ 最大5頭まで。超過分は無視されます。</div>
+</div>
+
+<div class="err" id="err"></div>
+<div class="brow">
+  <button class="btn btn-primary" onclick="doAnalyze()"><i class="ti ti-chart-bar" aria-hidden="true"></i>分析する</button>
+  <button class="btn btn-ghost" onclick="doClearAll()">すべてクリア</button>
+  <button class="btn btn-ghost" id="hist-toggle-btn" onclick="toggleHistory()" style="margin-left:auto;"><i class="ti ti-history" aria-hidden="true"></i>過去の分析を見る</button>
+</div>
+
+<div id="result" style="display:none;margin-top:1.5rem">
+  <div id="mode-badge"></div>
+
+  <!-- フィルターパネル -->
+  <div class="filter-panel" id="filter-panel">
+    <div class="filter-panel-hdr" onclick="toggleFilterPanel()">
+      <div class="filter-panel-title"><i class="ti ti-filter" aria-hidden="true"></i>絞り込み条件（AND条件）</div>
+      <div class="filter-panel-actions">
+        <span class="filter-active-badge" id="filter-badge" style="display:none">適用中</span>
+        <i class="ti ti-chevron-down filter-toggle-icon open" id="filter-toggle-icon" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div class="filter-body open" id="filter-body">
+      <div class="filter-row">
+        <div class="filter-col filter-col-wide">
+          <div class="filter-col-label">競馬場（複数選択可）</div>
+          <div class="cb-group" id="f-venue"></div>
+        </div>
+        <div class="filter-col">
+          <div class="filter-col-label">芝/ダート</div>
+          <div class="cb-group" id="f-surface"></div>
+        </div>
+        <div class="filter-col">
+          <div class="filter-col-label">馬場状態（複数選択可）</div>
+          <div class="cb-group" id="f-track"></div>
+        </div>
+        <div class="filter-col">
+          <div class="filter-col-label">距離（m）</div>
+          <div class="range-row">
+            <input type="number" class="range-input" id="f-dist-min" placeholder="以上" oninput="applyFilters()">
+            <span class="range-sep">〜</span>
+            <input type="number" class="range-input" id="f-dist-max" placeholder="以下" oninput="applyFilters()">
+          </div>
+        </div>
+        <div class="filter-col" id="horse-checks-wrap" style="display:none">
+          <div class="filter-col-label">表示する馬</div>
+          <div class="cb-group" id="horse-checks"></div>
+        </div>
+      </div>
+      <div class="filter-footer">
+        <div class="filter-summary" id="filter-summary">絞り込みなし</div>
+        <button class="filter-rst" onclick="resetFilters()"><i class="ti ti-refresh" aria-hidden="true"></i>リセット</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1頭用 -->
+  <div id="view-single" style="display:none">
+    <div class="horse-header">
+      <div class="horse-name" id="s-name"></div>
+      <div class="horse-lineage" id="s-father"></div>
+      <div id="s-diagnosis"></div>
+    </div>
+    <div class="card">
+      <p class="slbl">直近20レースの平均値 <span id="s-filter-note" style="color:var(--tx3);font-size:9px;margin-left:4px;text-transform:none;letter-spacing:0"></span></p>
+      <div class="mg3">
+        <div class="mc"><div class="mclb">前半3F 平均タイム</div><div class="mcv" id="s-f3">—</div><div class="mc-sub" id="s-f3n"></div></div>
+        <div class="mc"><div class="mclb">上り3F 平均タイム</div><div class="mcv" id="s-l3">—</div><div class="mc-sub" id="s-l3n"></div></div>
+        <div class="mc"><div class="mclb">最終コーナー 平均位置</div><div class="mcv" id="s-cor">—</div><div class="mc-sub" id="s-corn"></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <p class="slbl">成績データ一覧</p>
+      <div id="s-course-tabbar"></div>
+      <div class="course-wrap" id="s-course-tbl-wrap"><table class="course-tbl" id="s-course-tbl"></table></div>
+    </div>
+  </div>
+
+  <!-- 対比用 -->
+  <div id="view-compare" style="display:none">
+    <div id="c-diagnosis" style="margin-bottom:1rem;"></div>
+    <div class="card">
+      <div class="section-title"><i class="ti ti-chart-bar" aria-hidden="true"></i>平均タイム・位置取り 対比</div>
+      <p class="cmp-note" id="cmp-note"><i class="ti ti-info-circle" aria-hidden="true"></i>絞り込み条件に一致するレースのみで平均を再計算しています</p>
+      <div class="cmp-wrap"><table class="cmp-tbl" id="cmp-tbl"></table></div>
+    </div>
+    <div class="card">
+      <div class="section-title"><i class="ti ti-list" aria-hidden="true"></i>成績データ一覧（全馬）</div>
+      <div id="c-course-tabbar"></div>
+      <div class="course-wrap" id="c-course-tbl-wrap"><table class="course-tbl" id="c-course-tbl"></table></div>
+    </div>
+  </div>
+
+  <p class="snote"><i class="ti ti-info-circle" aria-hidden="true"></i>Excelの成績データから集計した結果です。予想の参考情報としてご活用ください。</p>
+</div>
+</main>
+
+<!-- =====================================================
+     広告スペース C（フッター上部）
+     ここにアフィリエイトバナーまたはAdSenseコードを貼り付けてください
+     ====================================================== -->
+<div id="ad-space-c" style="background:#f0f0ed;border-top:0.5px solid #dcdcd8;padding:20px 16px;text-align:center;">
+  <!-- 広告コードをここに貼り付け（例: <a href="..."><img src="..." width="728" height="90"></a>） -->
+</div>
+<!-- =====================================================
+     広告スペース C ここまで
+     ====================================================== -->
+
+<footer style="background:#1a2744;padding:20px 16px;">
+  <div style="max-width:960px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:10px;">
+    <div style="display:flex;gap:20px;">
+      <a href="terms.html" style="font-size:12px;color:rgba(255,255,255,.6);text-decoration:none;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.6)'">利用規約</a>
+      <a href="privacy.html" style="font-size:12px;color:rgba(255,255,255,.6);text-decoration:none;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.6)'">プライバシーポリシー</a>
+    </div>
+    <p style="font-size:11px;color:rgba(255,255,255,.4);margin:0;">© 2026 マイ競馬リサーチ　運営者：keibawithM</p>
+  </div>
+</footer>
+
+<script>
+var MAX=5, COLORS=['#2d5fa8','#1d9e75','#d85a30','#7f77dd','#ba7517'];
+var allHorses=[], visibleHorses=[];
+var courseSort={col:'time',asc:true};
+var cmpSort={metricKey:null,asc:true};
+var fState={venues:new Set(),surfaces:new Set(),tracks:new Set(),distMin:'',distMax:''};
+
+function onDragArea(e,over){e.preventDefault();document.getElementById('upload-area').classList.toggle('drag',over);}
+function onDropArea(e){e.preventDefault();document.getElementById('upload-area').classList.remove('drag');loadFiles(Array.from(e.dataTransfer.files));}
+function switchUploadTab(tab){
+  document.getElementById('pane-excel').style.display=tab==='excel'?'block':'none';
+  document.getElementById('pane-text').style.display=tab==='text'?'block':'none';
+  document.getElementById('tab-excel').style.color=tab==='excel'?'#2d5fa8':'var(--tx3)';
+  document.getElementById('tab-excel').style.borderBottomColor=tab==='excel'?'#2d5fa8':'transparent';
+  document.getElementById('tab-text').style.color=tab==='text'?'#2d5fa8':'var(--tx3)';
+  document.getElementById('tab-text').style.borderBottomColor=tab==='text'?'#2d5fa8':'transparent';
+}
+
+function switchHowtoTab(tab){
+  document.getElementById('howto-pane-excel').style.display=tab==='excel'?'grid':'none';
+  document.getElementById('howto-pane-text').style.display=tab==='text'?'grid':'none';
+  document.getElementById('howto-tab-excel').style.color=tab==='excel'?'#2d5fa8':'#a0a8bc';
+  document.getElementById('howto-tab-excel').style.borderBottomColor=tab==='excel'?'#2d5fa8':'transparent';
+  document.getElementById('howto-tab-text').style.color=tab==='text'?'#2d5fa8':'#a0a8bc';
+  document.getElementById('howto-tab-text').style.borderBottomColor=tab==='text'?'#2d5fa8':'transparent';
+}
+
+function addFromTextPaste(){
+  var msg=document.getElementById('text-paste-msg');
+  var horseName=document.getElementById('text-horse-name').value.trim();
+  var raw=document.getElementById('text-paste-area').value;
+  if(!raw.trim()){msg.textContent='成績データが入力されていません。';msg.style.color='var(--rtx)';return;}
+  if(allHorses.length>=MAX){msg.textContent='最大5頭まで追加できます。';msg.style.color='var(--rtx)';return;}
+  try{
+    var sheetRows=textToRows(raw);
+    var parsed=parseRaceRowsNoHeader(sheetRows);
+    parsed.horseName=horseName;
+    if(!parsed.rows.length){
+      msg.textContent='成績データを認識できませんでした。1行＝1レース分のデータになるよう貼り付けてください。';
+      msg.style.color='var(--rtx)';
+      return;
+    }
+    parsed.colorIdx=allHorses.length;
+    allHorses.push(parsed);
+    renderHorseList();
+    setErr('');
+    document.getElementById('text-paste-area').value='';
+    document.getElementById('text-horse-name').value='';
+    msg.textContent='「'+(parsed.horseName||'馬名未入力')+'」を追加しました（'+parsed.rows.length+'戦）。';
+    msg.style.color='var(--gtx)';
+  }catch(err){
+    msg.textContent='読み込みエラー: '+err.message;
+    msg.style.color='var(--rtx)';
+  }
+}
+
+/* ===== 見出し行なしのデータ行を、値のパターンで自己診断しながら解析 ===== */
+function parseRaceRowsNoHeader(sheetRows){
+  var rows=[];
+  sheetRows.forEach(function(cells){
+    var c=(cells||[]).map(function(v){return String(v||'').trim();});
+    if(!c.join('').trim())return; // 完全な空行はスキップ
+
+    var dateStr=null,timeStr=null,distRaw=null,trackVal=null,venue=null,
+        finishVal=null,l3=null,f3=null,corner=null,jockey=null,weight=null,raceTitle=null;
+    var usedIdx={};
+
+    // --- 1st pass: 厳密に一意なパターンのみ抽出（誤検出しにくい順） ---
+    for(var i=0;i<c.length;i++){
+      var v=c[i];
+      if(!v)continue;
+
+      // 馬体重: 466(0) 504(+4) 452(-6) のような形式。最優先で確定し、以後のpassから除外する。
+      if(/^\d{3}\([+\-]?\d+\)$/.test(v)){usedIdx[i]=1;continue;}
+
+      // 日付: 2026/06/14
+      if(!dateStr&&/^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/.test(v)){dateStr=v.replace(/-/g,'/');usedIdx[i]=1;continue;}
+
+      // タイム: 1:46.2
+      if(!timeStr&&/^\d{1}:\d{2}\.\d$/.test(v)){timeStr=v;usedIdx[i]=1;continue;}
+
+      // 距離: 芝1600 ダ1200 ダート2000
+      if(!distRaw&&/^(芝|ダート|ダ)\d{3,4}$/.test(v)){distRaw=v;usedIdx[i]=1;continue;}
+
+      // 馬場状態: 良 稍重 稍 重 不良（短い完全一致語のため最優先級で確定）
+      if(!trackVal&&/^(良|稍重|稍|重|不良)$/.test(v)){trackVal=v;usedIdx[i]=1;continue;}
+
+      // 通過（コーナー位置）: 6-6-1-2 のようなハイフン2つ以上区切り数字列
+      if(!corner&&/^\d{1,2}(-\d{1,2}){1,3}$/.test(v)){
+        var pp=v.split('-'),last=parseFloat(pp[pp.length-1]);
+        if(!isNaN(last)&&last>=1&&last<=18)corner=last;
+        usedIdx[i]=1;continue;
+      }
+
+      // ペース（前半-上り）: 35.4-35.6 ※前半3Fとして前半部分を採用
+      var paceIdx=-1;
+      if(!f3&&/^\d{2}\.\d-\d{2}\.\d$/.test(v)){
+        var pp2=v.split('-'),fv=parseFloat(pp2[0]);
+        if(!isNaN(fv)&&fv>20&&fv<60)f3=fv;
+        usedIdx[i]=1;paceIdx=i;continue;
+      }
+    }
+
+    // --- 1.5th pass: 上り3F。「ペース列の直後にある独立した小数」を最優先で採用 ---
+    // （netkeibaでは ペース(前半-上り) 列の次に 上り 単独列が並ぶことが多いため）
+    var paceColIdx=-1;
+    for(var ip=0;ip<c.length;ip++){
+      if(/^\d{2}\.\d-\d{2}\.\d$/.test(c[ip])){paceColIdx=ip;break;}
+    }
+    if(paceColIdx!==-1&&c[paceColIdx+1]&&/^\d{2}\.\d$/.test(c[paceColIdx+1])){
+      var lv0=parseFloat(c[paceColIdx+1]);
+      if(!isNaN(lv0)&&lv0>=20&&lv0<=60){l3=lv0;usedIdx[paceColIdx+1]=1;}
+    }
+
+    // --- 2nd pass: 開催（競馬場）。「数字+漢字+数字」で日付等と被らない列のみ ---
+    for(var i2=0;i2<c.length;i2++){
+      if(usedIdx[i2])continue;
+      var v2=c[i2];
+      if(!venue&&/^\d{0,2}[\u4e00-\u9fa5]{1,4}\d{0,2}$/.test(v2)&&/[\u4e00-\u9fa5]/.test(v2)&&v2.length<=6){
+        // 競馬場の代表的な地名を含むか、または数字に挟まれた漢字パターンを優先
+        venue=v2.replace(/^[0-9]+/,'').replace(/[0-9]+$/,'');
+        usedIdx[i2]=1;break;
+      }
+    }
+
+    // --- 3rd pass: 上り3F（単独の小数20〜60）。馬体重(3桁)等と混同しないよう範囲限定 ---
+    for(var i3=0;i3<c.length;i3++){
+      if(usedIdx[i3])continue;
+      var v3=c[i3];
+      if(!l3&&/^\d{2}\.\d$/.test(v3)){
+        var lv=parseFloat(v3);
+        if(!isNaN(lv)&&lv>=20&&lv<=60){l3=lv;usedIdx[i3]=1;continue;}
+      }
+    }
+
+    // --- 4th pass: 騎手名（日本語の姓名らしき2〜6文字、地名や馬場状態と被らない） ---
+    for(var i4=0;i4<c.length;i4++){
+      if(usedIdx[i4])continue;
+      var v4=c[i4];
+      if(!jockey&&/^[\u4e00-\u9fa5ぁ-んァ-ヶー]{2,6}$/.test(v4)){
+        jockey=v4;usedIdx[i4]=1;break;
+      }
+    }
+
+    // --- 5th pass: レース名 ---
+    // 「(B3)」「(C1)」のような競走クラス表記は最優先で採用。
+    // ただし「466(0)」「504(+4)」のような馬体重欄（数字部分+括弧内が符号付き数字のみ）は除外。
+    for(var i5=0;i5<c.length;i5++){
+      if(usedIdx[i5])continue;
+      var v5=c[i5];
+      // 馬体重パターン: 数字+(符号付き数字) → 除外対象
+      if(/^\d{3}\([+\-]?\d+\)$/.test(v5))continue;
+      // グレード表記: (G1)(G2)(G3)、または英字を含むクラス表記 (B3)(C1)等。括弧内に英字必須。
+      if(!raceTitle&&/\([A-Zａ-ｚA-Za-z][^)]*\)\s*$/.test(v5)){raceTitle=v5;usedIdx[i5]=1;break;}
+    }
+    if(!raceTitle){
+      // クラス表記がない場合（「2歳一　二」等）は、最長文字列ではなく
+      // 「最も早い位置にある日本語混在文字列」を採用する。
+      // ただし勝ち馬・2着馬欄（馬名括弧、または賞金額の直前にある列）は確実に除外。
+      var raceCandIdx=-1;
+      for(var i6=0;i6<c.length;i6++){
+        if(usedIdx[i6])continue;
+        var vv=c[i6];
+        if(!/[\u4e00-\u9fa5ぁ-んァ-ヶー]/.test(vv))continue;
+        if(vv.length<2)continue;
+        // 「(カタカナ・漢字・ひらがなのみ)」という丸ごと括弧の形は勝ち馬欄の馬名なので除外
+        if(/^\(.*[\u4e00-\u9fa5ぁ-んァ-ヶー].*\)$/.test(vv))continue;
+        // 直後の列が賞金額（数値またはカンマ区切り数値、もしくは空欄で末尾）なら勝ち馬欄とみなして除外
+        var nextV=c[i6+1];
+        var isLastOrMoney=(nextV===undefined)||nextV===''||/^[\d,]+\.?\d*$/.test(nextV);
+        var prevV=c[i6-1];
+        var prevIsBlankOrSpace=(prevV===undefined)||prevV.trim()==='';
+        if(isLastOrMoney&&prevIsBlankOrSpace)continue;
+        raceCandIdx=i6;break;
+      }
+      if(raceCandIdx!==-1){raceTitle=c[raceCandIdx];usedIdx[raceCandIdx]=1;}
+    }
+
+    // --- 6th pass: 斤量（45〜65の整数か小数1桁）。馬体重(3桁)と区別するため2桁限定 ---
+    for(var i7=0;i7<c.length;i7++){
+      if(usedIdx[i7])continue;
+      var v7=c[i7];
+      if(!weight&&/^\d{2}(\.\d)?$/.test(v7)){
+        var wv=parseFloat(v7);
+        if(!isNaN(wv)&&wv>=45&&wv<=65){weight=wv;usedIdx[i7]=1;continue;}
+      }
+    }
+
+    // --- 7th pass: 着順（1〜18の整数）。騎手名の直前の列を最優先（netkeibaの並び順: …人気→着順→騎手…）
+    var jockeyIdx=-1;
+    for(var ij=0;ij<c.length;ij++){if(c[ij]===jockey){jockeyIdx=ij;break;}}
+    if(jockeyIdx>0&&!usedIdx[jockeyIdx-1]&&/^([1-9]|1[0-8])$/.test(c[jockeyIdx-1])){
+      finishVal=parseInt(c[jockeyIdx-1]);usedIdx[jockeyIdx-1]=1;
+    }
+    if(finishVal===null){
+      for(var i8=0;i8<c.length;i8++){
+        if(usedIdx[i8])continue;
+        var v8=c[i8];
+        if(finishVal===null&&/^([1-9]|1[0-8])$/.test(v8)){
+          finishVal=parseInt(v8);usedIdx[i8]=1;break;
+        }
+      }
+    }
+
+    // 最低限「日付」「距離」「タイム」のいずれかが取れていなければレース行とみなさない
+    if(!dateStr&&!distRaw&&!timeStr)return;
+
+    var sm=distRaw?distRaw.match(/^(芝|ダート|ダ)/):null;
+    var surface=sm?(sm[1]==='ダ'?'ダート':sm[1]):'';
+    var distNum=distRaw?distRaw.replace(/^(芝|ダート|ダ)/,'').trim():'';
+
+    rows.push({
+      date:dateStr||'',race:raceTitle||'',
+      venue:venue||'',surface:surface,dist:distNum,distN:parseInt(distNum)||0,
+      track:trackVal||'',
+      finish:finishVal,finishStr:finishVal!==null?String(finishVal):'',
+      time:timeStr||'',timeSec:timeToSec(timeStr||''),
+      f3:f3,l3:l3,corner:corner,
+      jockey:jockey||'',weight:weight
+    });
+  });
+  return{horseName:'',fatherName:'',motherName:'',rows:rows};
+}
+
+// netkeibaのコピーテキスト（タブ区切り・改行区切り）を2次元配列に変換
+function textToRows(raw){
+  var lines=raw.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  return lines.map(function(line){return line.split('\t');});
+}
+
+function onFileArea(e){loadFiles(Array.from(e.target.files));document.getElementById('file-input').value='';}
+
+
+function loadFiles(files){
+  files.forEach(function(file){
+    if(allHorses.length>=MAX)return;
+    var reader=new FileReader();
+    reader.onload=function(e){
+      try{
+        var wb=XLSX.read(e.target.result,{type:'array'});
+        wb.SheetNames.forEach(function(sn){
+          if(allHorses.length>=MAX)return;
+          var rows=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,defval:''});
+          var parsed=parseSheet(rows);
+          if(!parsed.rows.length)return;
+          parsed.colorIdx=allHorses.length;
+          allHorses.push(parsed);
+        });
+        renderHorseList();setErr('');
+      }catch(err){setErr('読み込みエラー: '+err.message);}
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function parseSheet(sheetRows){
+  var horseName='',fatherName='',motherName='';
+  if(sheetRows[1]){
+    for(var ci=2;ci<=7;ci++){if(String(sheetRows[1][ci]||'').trim()){horseName=String(sheetRows[1][ci]).trim();break;}}
+    for(var ci2=10;ci2<=15;ci2++){if(String(sheetRows[1][ci2]||'').trim()){fatherName=String(sheetRows[1][ci2]).trim();break;}}
+    for(var ci3=18;ci3<=27;ci3++){if(String(sheetRows[1][ci3]||'').trim()){motherName=String(sheetRows[1][ci3]).trim();break;}}
+  }
+  var headerRow=-1;
+  for(var ri=0;ri<Math.min(sheetRows.length,10);ri++){
+    var rs=(sheetRows[ri]||[]).join('');
+    if(rs.indexOf('日付')!==-1||rs.indexOf('レース名')!==-1){headerRow=ri;break;}
+  }
+  if(headerRow===-1)return{horseName:horseName,fatherName:fatherName,motherName:motherName,rows:[]};
+  var headers=(sheetRows[headerRow]||[]).map(function(h){return String(h).trim();});
+  function col(names){for(var i=0;i<names.length;i++){var x=headers.indexOf(names[i]);if(x!==-1)return x;}return -1;}
+  var iDate=col(['日付']),iKai=col(['開催']),iRace=col(['レース名']),iDist=col(['距離']),
+      iTrack=col(['馬場']),iFinish=col(['着順']),iPace=col(['ペース','ベース']),
+      iAgari=col(['上り']),iPass=col(['通過']),iTime=col(['タイム']),
+      iJockey=col(['騎手']),iWeight=col(['斤量']);
+  var rows=[];
+  for(var ri2=headerRow+1;ri2<sheetRows.length;ri2++){
+    var row=sheetRows[ri2]||[];
+    if(row.join('').replace(/#VALUE!/g,'').trim()==='')continue;
+    var rawT=iTime>=0?row[iTime]:'',timeStr='';
+    if(rawT&&!isNaN(rawT)&&parseFloat(rawT)<1){
+      var ts=parseFloat(rawT)*86400,m=Math.floor(ts/60),s=(ts-m*60).toFixed(1);
+      timeStr=m+':'+(parseFloat(s)<10?'0':'')+s;
+    }else{timeStr=String(rawT).trim();}
+    var kRaw=iKai>=0?String(row[iKai]||'').trim():'';
+    var venue=kRaw.replace(/^[0-9]+/,'').replace(/[0-9]+$/,'');
+    var dRaw=iDist>=0?String(row[iDist]||'').trim():'';
+    var sm=dRaw.match(/^(芝|ダート|ダ)/);
+    var surface=sm?(sm[1]==='ダ'?'ダート':sm[1]):'';
+    var distNum=dRaw.replace(/^(芝|ダート|ダ)/,'').trim();
+    var pRaw=iPace>=0?String(row[iPace]||'').trim():'',f3=null;
+    if(pRaw){var pp=pRaw.split('-');if(pp.length>=2){var v=parseFloat(pp[0]);if(!isNaN(v)&&v>20&&v<60)f3=v;}}
+    var aRaw=iAgari>=0?row[iAgari]:'',l3=parseFloat(aRaw);
+    if(isNaN(l3)||l3<20||l3>60)l3=null;
+    var psRaw=iPass>=0?String(row[iPass]||'').trim():'',corner=null;
+    if(psRaw&&psRaw.indexOf('-')!==-1){
+      var pp2=psRaw.split('-'),last=parseFloat(pp2[pp2.length-1]);
+      if(!isNaN(last)&&last>=1&&last<=18)corner=last;
+    }
+    var fRaw=iFinish>=0?String(row[iFinish]||'').trim():'',fNum=parseInt(fRaw);
+    var dtRaw=iDate>=0?row[iDate]:'',dateStr='';
+    if(dtRaw&&!isNaN(dtRaw)&&parseInt(dtRaw)>40000){
+      var d=new Date(Math.round((parseFloat(dtRaw)-25569)*86400*1000));
+      dateStr=d.getFullYear()+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getDate().toString().padStart(2,'0');
+    }else{dateStr=String(dtRaw).trim();}
+    var jockey=iJockey>=0?String(row[iJockey]||'').trim():'';
+    var wRaw=iWeight>=0?row[iWeight]:'',weight=parseFloat(wRaw);
+    if(isNaN(weight)||weight<40||weight>70)weight=null;
+    rows.push({date:dateStr,race:iRace>=0?String(row[iRace]||'').trim():'',
+      venue:venue,surface:surface,dist:distNum,distN:parseInt(distNum)||0,
+      track:iTrack>=0?String(row[iTrack]||'').trim():'',
+      finish:fNum,finishStr:fRaw,time:timeStr,timeSec:timeToSec(timeStr),f3:f3,l3:l3,corner:corner,
+      jockey:jockey,weight:weight});
+  }
+  return{horseName:horseName,fatherName:fatherName,motherName:motherName,rows:rows};
+}
+
+function renderHorseList(){
+  var list=document.getElementById('horse-list');
+  list.innerHTML=allHorses.map(function(h,i){
+    return'<div class="horse-item">'+
+      '<div class="horse-color" style="background:'+COLORS[h.colorIdx]+'"></div>'+
+      '<div class="horse-item-name">'+(i+1)+'. '+(h.horseName||'馬名未入力')+'</div>'+
+      '<div class="horse-item-meta">'+[h.fatherName?'父: '+h.fatherName:'',h.motherName?'母: '+h.motherName:'',h.rows.length?h.rows.length+'戦':''].filter(Boolean).join('　')+'</div>'+
+      '<button class="horse-item-del" onclick="removeHorse('+i+')"><i class="ti ti-x" aria-hidden="true"></i></button>'+
+    '</div>';
+  }).join('');
+  document.getElementById('horse-count').textContent=allHorses.length?allHorses.length+'頭 読み込み済':'';
+  document.getElementById('limit-warn').style.display=allHorses.length>=MAX?'block':'none';
+}
+
+function removeHorse(idx){
+  allHorses.splice(idx,1);
+  allHorses.forEach(function(h,i){h.colorIdx=i;});
+  renderHorseList();
+  document.getElementById('result').style.display='none';
+}
+
+function doClearAll(){
+  allHorses=[];renderHorseList();
+  document.getElementById('result').style.display='none';setErr('');
+  document.getElementById('hero-img').style.display='block';
+  document.getElementById('hero-desc').style.display='block';
+  document.getElementById('howto-section').style.display='block';
+  document.getElementById('history-panel').style.display='none';
+  var btn=document.getElementById('hist-toggle-btn');
+  if(btn)btn.textContent='過去の分析を見る';
+}
+
+function timeToSec(str){
+  if(!str)return null;
+  var m=String(str).match(/^(\d+):(\d+\.?\d*)$/);
+  return m?parseInt(m[1])*60+parseFloat(m[2]):null;
+}
+
+function toggleFilterPanel(){
+  var body=document.getElementById('filter-body');
+  var icon=document.getElementById('filter-toggle-icon');
+  var open=body.classList.toggle('open');
+  icon.classList.toggle('open',open);
+}
+
+function buildFilterOptions(statsList){
+  var venues=new Set(),surfaces=new Set(),tracks=new Set();
+  statsList.forEach(function(d){
+    d.horse.rows.forEach(function(r){
+      if(r.venue)venues.add(r.venue);
+      if(r.surface)surfaces.add(r.surface);
+      if(r.track)tracks.add(r.track);
+    });
+  });
+  buildCbGroup('f-venue',Array.from(venues).sort(),'venues');
+  buildCbGroup('f-surface',Array.from(surfaces).sort(),'surfaces');
+  buildCbGroup('f-track',Array.from(tracks).sort(),'tracks');
+}
+
+function buildCbGroup(containerId,vals,fKey){
+  var el=document.getElementById(containerId);
+  el.innerHTML=vals.map(function(v){
+    var checked=fState[fKey].has(v);
+    var safeVal=v.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+    return'<label class="cb-item'+(checked?' checked':'')+'">'+
+      '<input type="checkbox" data-fkey="'+fKey+'" data-val="'+safeVal+'"'+(checked?' checked':'')+'>'+v+'</label>';
+  }).join('');
+  el.querySelectorAll('input[type=checkbox]').forEach(function(inp){
+    inp.addEventListener('change',function(){
+      var label=inp.parentElement;
+      var fk=inp.getAttribute('data-fkey');
+      var vl=inp.getAttribute('data-val');
+      if(inp.checked){fState[fk].add(vl);label.classList.add('checked');}
+      else{fState[fk].delete(vl);label.classList.remove('checked');}
+      applyFilters();
+    });
+  });
+}
+
+function buildHorseChecks(statsList){
+  var wrap=document.getElementById('horse-checks-wrap');
+  var checks=document.getElementById('horse-checks');
+  if(statsList.length<=1){wrap.style.display='none';return;}
+  wrap.style.display='flex';
+  checks.innerHTML=statsList.map(function(d){
+    var name=d.horse.horseName||('馬'+(d.horse.colorIdx+1));
+    var vis=visibleHorses.indexOf(d.horse.colorIdx)!==-1;
+    return'<label class="hcheck'+(vis?'':' off')+'" style="background:'+COLORS[d.horse.colorIdx]+'" data-idx="'+d.horse.colorIdx+'">'+
+      '<input type="checkbox"'+(vis?' checked':'')+' onchange="toggleHorse('+d.horse.colorIdx+',this.checked)">'+name+'</label>';
+  }).join('');
+}
+
+function toggleHorse(idx,checked){
+  if(checked){if(visibleHorses.indexOf(idx)===-1)visibleHorses.push(idx);}
+  else{visibleHorses=visibleHorses.filter(function(i){return i!==idx;});}
+  document.querySelectorAll('.hcheck').forEach(function(l){
+    l.classList.toggle('off',visibleHorses.indexOf(parseInt(l.getAttribute('data-idx')))===-1);
+  });
+  renderResults();
+}
+
+function applyFilters(){
+  fState.distMin=document.getElementById('f-dist-min').value;
+  fState.distMax=document.getElementById('f-dist-max').value;
+  updateFilterBadge();
+  renderResults();
+}
+
+function resetFilters(){
+  fState={venues:new Set(),surfaces:new Set(),tracks:new Set(),distMin:'',distMax:''};
+  document.getElementById('f-dist-min').value='';
+  document.getElementById('f-dist-max').value='';
+  document.querySelectorAll('#f-venue .cb-item,#f-surface .cb-item,#f-track .cb-item').forEach(function(el){
+    el.classList.remove('checked');
+  });
+  visibleHorses=allHorses.map(function(h){return h.colorIdx;});
+  buildHorseChecks(window._statsList||[]);
+  updateFilterBadge();
+  renderResults();
+}
+
+function updateFilterBadge(){
+  var active=fState.venues.size>0||fState.surfaces.size>0||fState.tracks.size>0||fState.distMin||fState.distMax;
+  document.getElementById('filter-badge').style.display=active?'inline-block':'none';
+  var parts=[];
+  if(fState.venues.size>0)parts.push('競馬場: '+Array.from(fState.venues).join('・'));
+  if(fState.surfaces.size>0)parts.push('芝/ダート: '+Array.from(fState.surfaces).join('・'));
+  if(fState.tracks.size>0)parts.push('馬場: '+Array.from(fState.tracks).join('・'));
+  if(fState.distMin||fState.distMax)parts.push('距離: '+(fState.distMin||'—')+'〜'+(fState.distMax||'—')+'m');
+  document.getElementById('filter-summary').textContent=parts.length?parts.join(' ／ '):'絞り込みなし';
+}
+
+function matchFilter(r){
+  if(fState.venues.size>0&&!fState.venues.has(r.venue))return false;
+  if(fState.surfaces.size>0&&!fState.surfaces.has(r.surface))return false;
+  if(fState.tracks.size>0&&!fState.tracks.has(r.track))return false;
+  var dn=parseInt(r.dist)||0;
+  if(fState.distMin&&dn<parseInt(fState.distMin))return false;
+  if(fState.distMax&&dn>parseInt(fState.distMax))return false;
+  return true;
+}
+
+function calcStatsFromRows(rows){
+  var r20=rows.slice(0,20);
+  function avg(arr){return arr.length?Math.round(arr.reduce(function(a,b){return a+b;},0)/arr.length*10)/10:null;}
+  var f3v=r20.map(function(r){return r.f3;}).filter(function(v){return v!==null;});
+  var l3v=r20.map(function(r){return r.l3;}).filter(function(v){return v!==null;});
+  var cv=r20.map(function(r){return r.corner;}).filter(function(v){return v!==null;});
+  return{f3avg:avg(f3v),f3n:f3v.length,l3avg:avg(l3v),l3n:l3v.length,coravg:avg(cv),corn:cv.length};
+}
+
+function calcCourseList(rows){
+  var courseMap={};
+  rows.forEach(function(r){
+    if(!r.time||!r.venue||!r.dist||r.timeSec===null)return;
+    var key=r.venue+'|'+r.surface+'|'+r.dist+'|'+r.track;
+    if(!courseMap[key]||r.timeSec<courseMap[key].timeSec){
+      courseMap[key]={timeSec:r.timeSec,time:r.time,l3:r.l3,finish:r.finish,finishStr:r.finishStr,
+        race:r.race,date:r.date,venue:r.venue,surface:r.surface,dist:r.dist,track:r.track};
+    }
+  });
+  return Object.keys(courseMap).sort().map(function(k){return courseMap[k];});
+}
+
+function sortCourseList(list){
+  var col=courseSort.col,asc=courseSort.asc;
+  return list.slice().sort(function(a,b){
+    var av,bv;
+    if(col==='time'){av=a.timeSec||9999;bv=b.timeSec||9999;}
+    else if(col==='l3'){av=a.l3!==null?a.l3:9999;bv=b.l3!==null?b.l3:9999;}
+    else if(col==='fin'){av=isNaN(a.finish)?99:a.finish;bv=isNaN(b.finish)?99:b.finish;}
+    else if(col==='venue'){av=a.venue||'';bv=b.venue||'';return asc?(av>bv?1:-1):(av<bv?1:-1);}
+    else if(col==='dist'){av=parseInt(a.dist)||0;bv=parseInt(b.dist)||0;}
+    else if(col==='horse'){av=a._horseName||'';bv=b._horseName||'';return asc?(av>bv?1:-1):(av<bv?1:-1);}
+    else return 0;
+    return asc?av-bv:bv-av;
+  });
+}
+function sortIcon(col,active,asc){
+  if(!active)return'<span class="si"><i class="ti ti-arrows-sort"></i></span>';
+  return'<span class="si" style="color:#2d5fa8">'+(asc?'▲':'▼')+'</span>';
+}
+function onCourseSort(col){
+  if(courseSort.col===col)courseSort.asc=!courseSort.asc;
+  else{courseSort.col=col;courseSort.asc=true;}
+  renderResults();
+}
+
+/* ===== 診断コメント ===== */
+function diagnoseHorse(rows){
+  var filtered=rows.filter(matchFilter);
+  var st=calcStatsFromRows(filtered);
+  if(st.l3n<3&&st.f3n<3){
+    return{text:'データ不足のため判定できません',type:'neutral'};
+  }
+  var tags=[];
+  if(st.l3avg!==null){
+    if(st.l3avg<=33.9)tags.push({label:'瞬発力型',type:'good'});
+    else if(st.l3avg>=35.0)tags.push({label:'パワー型',type:'neutral'});
+  }
+  if(st.f3avg!==null&&st.f3avg<34.5&&st.l3avg!==null&&st.l3avg<=33.9){
+    tags.push({label:'先行力もあるオールラウンド型',type:'good'});
+  }
+  if(st.coravg!==null){
+    if(st.coravg>=10)tags.push({label:'差し・追込型',type:'neutral'});
+    else if(st.coravg<=5)tags.push({label:'先行・逃げ型',type:'neutral'});
+  }
+  if(!tags.length)return{text:'データ不足のため判定できません',type:'neutral'};
+  return{text:tags.map(function(t){return t.label;}).join('／'),type:'good'};
+}
+
+function diagnosisBadgeHtml(rows){
+  var d=diagnoseHorse(rows);
+  var color=d.type==='good'?'#0f6e56':'#607090';
+  var bg=d.type==='good'?'#e8f5ee':'#eef1f7';
+  return '<div style="display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600;color:'+color+';background:'+bg+';margin-top:6px;">'
+    +'<i class="ti ti-stethoscope" aria-hidden="true" style="font-size:13px;"></i>'+d.text+'</div>';
+}
+
+/* ===== 騎手別・斤量別集計 ===== */
+function calcJockeyList(rows){
+  var map={};
+  rows.forEach(function(r){
+    if(!r.jockey)return;
+    if(!map[r.jockey])map[r.jockey]={jockey:r.jockey,count:0,win:0,finishes:[],l3v:[]};
+    var m=map[r.jockey];
+    m.count++;
+    if(r.finish===1)m.win++;
+    if(!isNaN(r.finish))m.finishes.push(r.finish);
+    if(r.l3!==null)m.l3v.push(r.l3);
+  });
+  return Object.keys(map).map(function(k){
+    var m=map[k];
+    var avgFin=m.finishes.length?Math.round(m.finishes.reduce(function(a,b){return a+b;},0)/m.finishes.length*10)/10:null;
+    var avgL3=m.l3v.length?Math.round(m.l3v.reduce(function(a,b){return a+b;},0)/m.l3v.length*10)/10:null;
+    var winRate=m.count?Math.round(m.win/m.count*1000)/10:0;
+    return{jockey:m.jockey,count:m.count,win:m.win,winRate:winRate,avgFin:avgFin,avgL3:avgL3};
+  }).sort(function(a,b){return b.count-a.count;});
+}
+
+function calcWeightList(rows){
+  var bands=[
+    {label:'54kg以下',min:0,max:54},
+    {label:'55〜57kg',min:55,max:57},
+    {label:'58kg以上',min:58,max:99}
+  ];
+  var result=bands.map(function(b){
+    var rs=rows.filter(function(r){return r.weight!==null&&r.weight>=b.min&&r.weight<=b.max;});
+    var win=rs.filter(function(r){return r.finish===1;}).length;
+    var finishes=rs.map(function(r){return r.finish;}).filter(function(v){return !isNaN(v);});
+    var avgFin=finishes.length?Math.round(finishes.reduce(function(a,c){return a+c;},0)/finishes.length*10)/10:null;
+    var winRate=rs.length?Math.round(win/rs.length*1000)/10:0;
+    return{label:b.label,count:rs.length,win:win,winRate:winRate,avgFin:avgFin};
+  });
+  return result.filter(function(r){return r.count>0;});
+}
+
+function jockeyTblHtml(rows){
+  var filtered=rows.filter(matchFilter);
+  var list=calcJockeyList(filtered);
+  if(!list.length)return '<table class="course-tbl"><tbody><tr><td class="no-data">騎手データがありません</td></tr></tbody></table>';
+  var head='<thead><tr><th>騎手</th><th>騎乗数</th><th>勝利数</th><th>勝率</th><th>平均着順</th><th>上り3F平均</th></tr></thead>';
+  var body=list.map(function(j){
+    return '<tr><td>'+j.jockey+'</td><td style="text-align:right">'+j.count+'回</td>'
+      +'<td style="text-align:right">'+j.win+'回</td>'
+      +'<td style="text-align:right">'+j.winRate+'%</td>'
+      +'<td style="text-align:right">'+(j.avgFin!==null?j.avgFin+'着':'—')+'</td>'
+      +'<td style="text-align:right">'+(j.avgL3!==null?j.avgL3+'秒':'—')+'</td></tr>';
+  }).join('');
+  return '<table class="course-tbl">'+head+'<tbody>'+body+'</tbody></table>';
+}
+
+function weightTblHtml(rows){
+  var filtered=rows.filter(matchFilter);
+  var list=calcWeightList(filtered);
+  if(!list.length)return '<table class="course-tbl"><tbody><tr><td class="no-data">斤量データがありません</td></tr></tbody></table>';
+  var head='<thead><tr><th>斤量帯</th><th>騎乗数</th><th>勝利数</th><th>勝率</th><th>平均着順</th></tr></thead>';
+  var body=list.map(function(w){
+    return '<tr><td>'+w.label+'</td><td style="text-align:right">'+w.count+'回</td>'
+      +'<td style="text-align:right">'+w.win+'回</td>'
+      +'<td style="text-align:right">'+w.winRate+'%</td>'
+      +'<td style="text-align:right">'+(w.avgFin!==null?w.avgFin+'着':'—')+'</td></tr>';
+  }).join('');
+  return '<table class="course-tbl">'+head+'<tbody>'+body+'</tbody></table>';
+}
+
+var courseTab={single:'course',compare:'course'};
+
+function switchCourseTab(mode,tab){
+  courseTab[mode]=tab;
+  renderResults();
+}
+
+function courseTabBarHtml(mode){
+  var tabs=[{key:'course',label:'コース別'},{key:'jockey',label:'騎手別'},{key:'weight',label:'斤量別'}];
+  return '<div style="display:flex;gap:4px;margin-bottom:10px;border-bottom:0.5px solid var(--bd);">'+tabs.map(function(t){
+    var active=courseTab[mode]===t.key;
+    return '<div onclick="switchCourseTab(\''+mode+'\',\''+t.key+'\')" style="padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;color:'+(active?'#2d5fa8':'var(--tx3)')+';border-bottom:2px solid '+(active?'#2d5fa8':'transparent')+';margin-bottom:-1px;">'+t.label+'</div>';
+  }).join('')+'</div>';
+}
+
+function setErr(msg){var e=document.getElementById('err');e.textContent=msg;e.classList.toggle('on',!!msg);}
+function finishCls(f){return f===1?'f1':f===2?'f2':f===3?'f3':'';}
+function fmtV(v,unit){return v!==null?v+'<span class="mcu">'+unit+'</span>':'<span style="font-size:13px;color:var(--tx3)">—</span>';}
+
+function courseTblSingle(rows){
+  var filtered=rows.filter(matchFilter);
+  var courseList=calcCourseList(filtered);
+  var sorted=sortCourseList(courseList);
+  var cols=[
+    {key:'venue',label:'競馬場'},{key:'surface',label:'芝/ダート'},{key:'dist',label:'距離'},
+    {key:'track',label:'馬場'},{key:'time',label:'最速タイム'},{key:'l3',label:'上り3F'},
+    {key:'fin',label:'着順'},{key:'race',label:'レース名',noSort:true},{key:'date',label:'日付',noSort:true}
+  ];
+  var head='<thead><tr>'+cols.map(function(c){
+    return'<th'+(c.noSort?'':' onclick="onCourseSort(\''+c.key+'\')"')+'>'+
+      c.label+(!c.noSort?sortIcon(c.key,courseSort.col===c.key,courseSort.asc):'')+'</th>';
+  }).join('')+'</tr></thead>';
+  var body=sorted.length?sorted.map(function(c){
+    return'<tr><td>'+(c.venue||'—')+'</td><td>'+(c.surface||'—')+'</td>'+
+      '<td style="text-align:right">'+(c.dist||'—')+'m</td><td>'+(c.track||'—')+'</td>'+
+      '<td style="text-align:right;font-weight:500">'+(c.time||'—')+'</td>'+
+      '<td style="text-align:right">'+(c.l3!==null?c.l3+'秒':'—')+'</td>'+
+      '<td style="text-align:center" class="'+finishCls(c.finish)+'">'+(c.finishStr||'—')+'着</td>'+
+      '<td style="font-size:11px;color:var(--tx2)">'+(c.race||'—')+'</td>'+
+      '<td style="font-size:11px;color:var(--tx3)">'+(c.date||'—')+'</td></tr>';
+  }).join(''):'<tr><td colspan="9" class="no-data">条件に一致するデータがありません</td></tr>';
+  return head+'<tbody>'+body+'</tbody>';
+}
+
+function courseTblCompare(statsList){
+  var allRows=[];
+  statsList.forEach(function(d){
+    if(visibleHorses.indexOf(d.horse.colorIdx)===-1)return;
+    var filtered=d.horse.rows.filter(matchFilter);
+    calcCourseList(filtered).forEach(function(c){
+      var r=Object.assign({},c);
+      r._colorIdx=d.horse.colorIdx;
+      r._horseName=d.horse.horseName||('馬'+(d.horse.colorIdx+1));
+      allRows.push(r);
+    });
+  });
+  var sorted=sortCourseList(allRows);
+  var cols=[
+    {key:'horse',label:'馬名'},{key:'venue',label:'競馬場'},{key:'surface',label:'芝/ダート'},
+    {key:'dist',label:'距離'},{key:'track',label:'馬場'},{key:'time',label:'最速タイム'},
+    {key:'l3',label:'上り3F'},{key:'fin',label:'着順'},
+    {key:'race',label:'レース名',noSort:true},{key:'date',label:'日付',noSort:true}
+  ];
+  var head='<thead><tr>'+cols.map(function(c){
+    return'<th'+(c.noSort?'':' onclick="onCourseSort(\''+c.key+'\')"')+'>'+
+      c.label+(!c.noSort?sortIcon(c.key,courseSort.col===c.key,courseSort.asc):'')+'</th>';
+  }).join('')+'</tr></thead>';
+  var body=sorted.length?sorted.map(function(c){
+    return'<tr>'+
+      '<td><span class="horse-tag" style="background:'+COLORS[c._colorIdx]+'">'+c._horseName+'</span></td>'+
+      '<td>'+(c.venue||'—')+'</td><td>'+(c.surface||'—')+'</td>'+
+      '<td style="text-align:right">'+(c.dist||'—')+'m</td><td>'+(c.track||'—')+'</td>'+
+      '<td style="text-align:right;font-weight:500">'+(c.time||'—')+'</td>'+
+      '<td style="text-align:right">'+(c.l3!==null?c.l3+'秒':'—')+'</td>'+
+      '<td style="text-align:center" class="'+finishCls(c.finish)+'">'+(c.finishStr||'—')+'着</td>'+
+      '<td style="font-size:11px;color:var(--tx2)">'+(c.race||'—')+'</td>'+
+      '<td style="font-size:11px;color:var(--tx3)">'+(c.date||'—')+'</td></tr>';
+  }).join(''):'<tr><td colspan="10" class="no-data">条件に一致するデータがありません</td></tr>';
+  return head+'<tbody>'+body+'</tbody>';
+}
+
+function onCmpSort(metricKey){
+  if(cmpSort.metricKey===metricKey){cmpSort.asc=!cmpSort.asc;}
+  else{cmpSort.metricKey=metricKey;cmpSort.asc=true;}
+  renderResults();
+}
+
+function renderCmpTbl(statsList){
+  var visible=statsList.filter(function(d){return visibleHorses.indexOf(d.horse.colorIdx)!==-1;});
+  var metrics=[
+    {key:'f3avg',label:'前半3F 平均タイム',unit:'秒',nKey:'f3n',best:function(a,b){return a<b;}},
+    {key:'l3avg',label:'上り3F 平均タイム',unit:'秒',nKey:'l3n',best:function(a,b){return a<b;}},
+    {key:'coravg',label:'最終コーナー 平均位置',unit:'番手',nKey:'corn',best:function(a,b){return a<b;}},
+  ];
+
+  // 各馬のstatsを計算
+  var statsForVisible=visible.map(function(d){
+    var filtered=d.horse.rows.filter(matchFilter);
+    return calcStatsFromRows(filtered);
+  });
+
+  // ソートが指定されている場合、visible（馬の列順）を並び替え
+  var sortedVisible=visible.slice();
+  var sortedStats=statsForVisible.slice();
+  if(cmpSort.metricKey){
+    var pairs=sortedVisible.map(function(d,i){return{d:d,st:sortedStats[i]};});
+    pairs.sort(function(a,b){
+      var av=a.st[cmpSort.metricKey],bv=b.st[cmpSort.metricKey];
+      if(av===null&&bv===null)return 0;
+      if(av===null)return 1;
+      if(bv===null)return -1;
+      return cmpSort.asc?av-bv:bv-av;
+    });
+    sortedVisible=pairs.map(function(p){return p.d;});
+    sortedStats=pairs.map(function(p){return p.st;});
+  }
+
+  var hRow='<tr><th style="min-width:130px">項目</th>';
+  sortedVisible.forEach(function(d){
+    hRow+='<th colspan="2" style="border-left:2px solid '+COLORS[d.horse.colorIdx]+';font-weight:500;font-size:12px">'+
+      '<span style="color:'+COLORS[d.horse.colorIdx]+'">●</span> '+(d.horse.horseName||'馬'+(d.horse.colorIdx+1))+'</th>';
+  });
+  hRow+='</tr>';
+
+  var bodyRows=metrics.map(function(m){
+    var vals=sortedStats.map(function(st){return st[m.key];}).filter(function(v){return v!==null;});
+    var best=vals.length?vals.reduce(function(a,b){return m.best(a,b)?a:b;}):null;
+    var bestCnt=vals.filter(function(v){return v===best;}).length;
+    var isActiveSortCol=cmpSort.metricKey===m.key;
+    var sortIconHtml='<span class="cmp-sort-icon'+(isActiveSortCol?' active':'')+'">'+
+      (isActiveSortCol?(cmpSort.asc?'▲':'▼'):'⇅')+'</span>';
+    var row='<tr class="sortable-row" onclick="onCmpSort(\''+m.key+'\')">'+
+      '<td style="font-size:12px;color:var(--tx2)">'+m.label+sortIconHtml+'</td>';
+    sortedVisible.forEach(function(d,i){
+      var st=sortedStats[i];
+      var v=st[m.key],n=st[m.nKey];
+      var isBest=v!==null&&best!==null&&v===best&&bestCnt<vals.length;
+      row+='<td class="val'+(isBest?' val-best':'')+'" style="border-left:2px solid '+COLORS[d.horse.colorIdx]+'">' +
+        (v!==null?v+'<span style="font-size:11px;font-weight:400;color:var(--tx2);margin-left:2px">'+m.unit+'</span>':'<span style="color:var(--tx3)">—</span>')+
+        '</td><td class="sub">'+(n?n+'R':'')+'</td>';
+    });
+    return row+'</tr>';
+  }).join('');
+
+  var active=fState.venues.size>0||fState.surfaces.size>0||fState.tracks.size>0||fState.distMin||fState.distMax;
+  var note=document.getElementById('cmp-note');
+  if(note)note.style.display=active?'flex':'none';
+  document.getElementById('cmp-tbl').innerHTML='<thead>'+hRow+'</thead><tbody>'+bodyRows+'</tbody>';
+}
+
+function renderSingleStats(horse){
+  var filtered=horse.rows.filter(matchFilter);
+  var st=calcStatsFromRows(filtered);
+  var active=fState.venues.size>0||fState.surfaces.size>0||fState.tracks.size>0||fState.distMin||fState.distMax;
+  var note=document.getElementById('s-filter-note');
+  note.textContent=active?'※ 絞り込み条件に一致するレースのみで再計算':'';
+  document.getElementById('s-f3').innerHTML=fmtV(st.f3avg,'秒');
+  document.getElementById('s-f3n').textContent=st.f3n?st.f3n+'レース分の平均':'';
+  document.getElementById('s-l3').innerHTML=fmtV(st.l3avg,'秒');
+  document.getElementById('s-l3n').textContent=st.l3n?st.l3n+'レース分の平均':'';
+  document.getElementById('s-cor').innerHTML=fmtV(st.coravg,'番手');
+  document.getElementById('s-corn').textContent=st.corn?st.corn+'レース分の平均':'';
+}
+
+function renderCourseSection(mode){
+  var tab=courseTab[mode];
+  var tabbarId=mode==='single'?'s-course-tabbar':'c-course-tabbar';
+  document.getElementById(tabbarId).innerHTML=courseTabBarHtml(mode);
+
+  if(mode==='single'){
+    var rows=window._statsList[0].horse.rows;
+    var wrap=document.getElementById('s-course-tbl-wrap');
+    if(tab==='course')wrap.innerHTML='<table class="course-tbl" id="s-course-tbl">'+courseTblSingle(rows)+'</table>';
+    else if(tab==='jockey')wrap.innerHTML=jockeyTblHtml(rows);
+    else if(tab==='weight')wrap.innerHTML=weightTblHtml(rows);
+  }else{
+    var statsList=window._statsList;
+    var wrap2=document.getElementById('c-course-tbl-wrap');
+    if(tab==='course'){
+      wrap2.innerHTML='<table class="course-tbl" id="c-course-tbl">'+courseTblCompare(statsList)+'</table>';
+    }else{
+      // 騎手別・斤量別を馬ごとに分けて表示
+      var visible=statsList.filter(function(d){return visibleHorses.indexOf(d.horse.colorIdx)!==-1;});
+      wrap2.innerHTML=visible.map(function(d){
+        var name=d.horse.horseName||'馬'+(d.horse.colorIdx+1);
+        var tblHtml=tab==='jockey'?jockeyTblHtml(d.horse.rows):weightTblHtml(d.horse.rows);
+        return '<div style="margin-bottom:16px;">'
+          +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">'
+          +'<span style="width:9px;height:9px;border-radius:50%;background:'+COLORS[d.horse.colorIdx]+';display:inline-block;"></span>'
+          +'<span style="font-size:12px;font-weight:600;color:'+COLORS[d.horse.colorIdx]+';">'+name+'</span></div>'
+          +tblHtml+'</div>';
+      }).join('');
+    }
+  }
+}
+
+function renderDiagnosis(){
+  var statsList=window._statsList;
+  var isSingle=statsList.length===1;
+  if(isSingle){
+    document.getElementById('s-diagnosis').innerHTML=diagnosisBadgeHtml(statsList[0].horse.rows);
+  }else{
+    var visible=statsList.filter(function(d){return visibleHorses.indexOf(d.horse.colorIdx)!==-1;});
+    document.getElementById('c-diagnosis').innerHTML=visible.map(function(d){
+      var name=d.horse.horseName||'馬'+(d.horse.colorIdx+1);
+      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">'
+        +'<span style="width:9px;height:9px;border-radius:50%;background:'+COLORS[d.horse.colorIdx]+';display:inline-block;flex-shrink:0;"></span>'
+        +'<span style="font-size:12px;font-weight:600;color:'+COLORS[d.horse.colorIdx]+';min-width:90px;">'+name+'</span>'
+        +diagnosisBadgeHtml(d.horse.rows)
+        +'</div>';
+    }).join('');
+  }
+}
+
+function renderResults(){
+  var statsList=window._statsList;
+  if(!statsList)return;
+  var isSingle=statsList.length===1;
+  if(isSingle){
+    renderSingleStats(statsList[0].horse);
+    renderCourseSection('single');
+  }else{
+    renderCmpTbl(statsList);
+    renderCourseSection('compare');
+  }
+  renderDiagnosis();
+}
+
+function doAnalyze(){
+  if(!allHorses.length){setErr('Excelファイルをアップロードしてください。');return;}
+  setErr('');
+  var statsList=allHorses.map(function(h){return{horse:h};});
+  window._statsList=statsList;
+  var isSingle=statsList.length===1;
+  document.getElementById('mode-badge').innerHTML=isSingle
+    ?'<div class="mode-badge mode-single"><i class="ti ti-horse" aria-hidden="true"></i>1頭分析モード</div>'
+    :'<div class="mode-badge mode-compare"><i class="ti ti-arrows-diff" aria-hidden="true"></i>'+statsList.length+'頭 対比モード</div>';
+  document.getElementById('view-single').style.display=isSingle?'block':'none';
+  document.getElementById('view-compare').style.display=isSingle?'none':'block';
+  fState={venues:new Set(),surfaces:new Set(),tracks:new Set(),distMin:'',distMax:''};
+  cmpSort={metricKey:null,asc:true};
+  courseTab={single:'course',compare:'course'};
+  buildFilterOptions(statsList);
+  visibleHorses=allHorses.map(function(h){return h.colorIdx;});
+  buildHorseChecks(statsList);
+  updateFilterBadge();
+  if(isSingle){
+    var h=statsList[0].horse;
+    document.getElementById('s-name').textContent=h.horseName||'（馬名未入力）';
+    document.getElementById('s-father').textContent=
+      [h.fatherName?'父: '+h.fatherName:'',h.motherName?'母: '+h.motherName:''].filter(Boolean).join('　');
+  }
+  renderResults();
+  saveHistory();
+  document.getElementById('result').style.display='block';
+  document.getElementById('hero-img').style.display='none';
+  document.getElementById('hero-desc').style.display='none';
+  document.getElementById('howto-section').style.display='none';
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+</script>
+
+<!-- 履歴パネル -->
+<div id="history-panel" style="display:none;max-width:960px;margin:0 auto 1.5rem;padding:0 16px;">
+  <div style="background:#fff;border:0.5px solid var(--bd);border-radius:var(--rl);overflow:hidden;">
+    <div style="display:grid;grid-template-columns:210px 1fr;min-height:320px;">
+      <!-- 左：履歴リスト -->
+      <div style="border-right:0.5px solid var(--bd);background:var(--bg2);display:flex;flex-direction:column;">
+        <div style="padding:10px 12px;font-size:11px;font-weight:600;color:var(--tx3);letter-spacing:.06em;border-bottom:0.5px solid var(--bd);">分析履歴（最大5件）</div>
+        <div id="history-list" style="flex:1;overflow-y:auto;"></div>
+        <div style="padding:10px 12px;border-top:0.5px solid var(--bd);">
+          <button onclick="clearAllHistory()" style="font-size:11px;color:var(--rtx);background:none;border:none;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;">
+            <i class="ti ti-trash" style="font-size:13px;" aria-hidden="true"></i>履歴をすべて削除
+          </button>
+        </div>
+      </div>
+      <!-- 右：選択した履歴の内容 -->
+      <div id="history-detail" style="padding:16px;overflow:auto;">
+        <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--tx3);font-size:13px;">履歴を選択してください</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== 保存・履歴機能 ===== */
+var HISTORY_KEY='keiba_history';
+var MAX_HISTORY=5;
+
+function saveHistory(){
+  var statsList=window._statsList;
+  if(!statsList||!statsList.length)return;
+  var horses=statsList.map(function(d){
+    var h=d.horse;
+    return{
+      horseName:h.horseName||'',
+      fatherName:h.fatherName||'',
+      motherName:h.motherName||'',
+      colorIdx:h.colorIdx,
+      rows:h.rows
+    };
+  });
+  var entry={
+    id:Date.now(),
+    savedAt:new Date().toLocaleString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}),
+    horses:horses
+  };
+  var history=loadHistoryRaw();
+  // 同じ馬名の組み合わせがあれば上書き
+  var names=horses.map(function(h){return h.horseName;}).join(',');
+  history=history.filter(function(e){
+    return e.horses.map(function(h){return h.horseName;}).join(',')!==names;
+  });
+  history.unshift(entry);
+  if(history.length>MAX_HISTORY)history=history.slice(0,MAX_HISTORY);
+  try{localStorage.setItem(HISTORY_KEY,JSON.stringify(history));}catch(e){}
+  renderHistoryList();
+}
+
+function loadHistoryRaw(){
+  try{
+    var raw=localStorage.getItem(HISTORY_KEY);
+    return raw?JSON.parse(raw):[];
+  }catch(e){return [];}
+}
+
+function clearAllHistory(){
+  if(!confirm('保存した履歴をすべて削除しますか？'))return;
+  try{localStorage.removeItem(HISTORY_KEY);}catch(e){}
+  renderHistoryList();
+  document.getElementById('history-detail').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--tx3);font-size:13px;">履歴がありません</div>';
+}
+
+function renderHistoryList(){
+  var list=document.getElementById('history-list');
+  if(!list)return;
+  var history=loadHistoryRaw();
+  if(!history.length){
+    list.innerHTML='<div style="padding:14px 12px;font-size:12px;color:var(--tx3);">保存された履歴はありません</div>';
+    return;
+  }
+  list.innerHTML=history.map(function(entry,i){
+    var names=entry.horses.map(function(h){return h.horseName||'不明';});
+    var first=names[0];
+    var rest=names.length>1?names.slice(1).join('・'):'';
+    var badge=names.length+'頭';
+    return '<div class="hist-item" data-idx="'+i+'" onclick="loadHistory('+i+')" style="padding:10px 12px;cursor:pointer;border-bottom:0.5px solid var(--bd);">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">'
+      +'<span style="font-size:11px;color:var(--tx3);">'+entry.savedAt+'</span>'
+      +'<span style="font-size:10px;background:var(--bg3);color:var(--tx3);border:0.5px solid var(--bd);border-radius:4px;padding:1px 5px;">'+badge+'</span>'
+      +'</div>'
+      +'<div style="font-size:12px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+first+'</div>'
+      +(rest?'<div style="font-size:11px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+rest+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+
+function loadHistory(idx){
+  var history=loadHistoryRaw();
+  var entry=history[idx];
+  if(!entry)return;
+
+  // アクティブ強調
+  document.querySelectorAll('.hist-item').forEach(function(el,i){
+    el.style.background=i===idx?'var(--bbg)':'';
+    el.style.borderLeft=i===idx?'2px solid #2d5fa8':'';
+  });
+
+  // 履歴データからstatsList相当を復元して右側に表示
+  var horses=entry.horses;
+  var isSingle=horses.length===1;
+  var detail=document.getElementById('history-detail');
+
+  if(isSingle){
+    var h=horses[0];
+    var filtered=h.rows;
+    var st=calcStatsFromRows(filtered);
+    detail.innerHTML=
+      '<div style="margin-bottom:12px;">'
+      +'<div style="font-size:15px;font-weight:600;color:var(--tx);margin-bottom:2px;">'+( h.horseName||'（馬名未入力）')+'</div>'
+      +(h.fatherName||h.motherName?'<div style="font-size:12px;color:var(--tx3);">'+(h.fatherName?'父: '+h.fatherName:'')+(h.fatherName&&h.motherName?'　':'')+(h.motherName?'母: '+h.motherName:'')+'</div>':'')
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;">'
+      +metricCard('前半3F 平均',st.f3avg,'秒',st.f3n)
+      +metricCard('上り3F 平均',st.l3avg,'秒',st.l3n)
+      +metricCard('コーナー平均',st.coravg,'番手',st.corn)
+      +'</div>'
+      +'<div style="font-size:11px;color:var(--tx3);margin-bottom:6px;">コース・距離別 最速タイム</div>'
+      +'<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;" id="hist-course-tbl"></table></div>'
+      +'<div style="margin-top:10px;font-size:11px;color:var(--tx3);">保存日時：'+entry.savedAt+'</div>';
+    document.getElementById('hist-course-tbl').innerHTML=courseTblSingle(h.rows);
+  }else{
+    // 複数頭
+    var headerRow='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">';
+    horses.forEach(function(h,i){
+      headerRow+='<span style="width:10px;height:10px;border-radius:50%;background:'+COLORS[h.colorIdx]+';flex-shrink:0;display:inline-block;"></span>'
+        +'<span style="font-size:12px;font-weight:600;color:'+COLORS[h.colorIdx]+';">'+( h.horseName||'馬'+(i+1))+'</span>';
+    });
+    headerRow+='</div>';
+
+    var metrics=[
+      {key:'f3avg',label:'前半3F 平均タイム',unit:'秒',nKey:'f3n'},
+      {key:'l3avg',label:'上り3F 平均タイム',unit:'秒',nKey:'l3n'},
+      {key:'coravg',label:'最終コーナー 平均位置',unit:'番手',nKey:'corn'},
+    ];
+    var statsArr=horses.map(function(h){return calcStatsFromRows(h.rows);});
+    var tblH='<tr><th style="min-width:120px;text-align:left;padding:7px 10px;font-size:12px;font-weight:500;color:var(--tx2);border-bottom:0.5px solid var(--bd);">項目</th>';
+    horses.forEach(function(h){
+      tblH+='<th colspan="2" style="text-align:right;padding:7px 10px;font-size:12px;font-weight:500;border-bottom:0.5px solid var(--bd);border-left:2px solid '+COLORS[h.colorIdx]+';color:'+COLORS[h.colorIdx]+';">'+(h.horseName||'馬')+'</th>';
+    });
+    tblH+='</tr>';
+    var tblB=metrics.map(function(m){
+      var row='<tr><td style="font-size:12px;color:var(--tx2);padding:7px 10px;border-bottom:0.5px solid var(--bd);">'+m.label+'</td>';
+      statsArr.forEach(function(st,i){
+        var v=st[m.key],n=st[m.nKey];
+        row+='<td style="text-align:right;padding:7px 10px;border-bottom:0.5px solid var(--bd);border-left:2px solid '+COLORS[horses[i].colorIdx]+';">'
+          +(v!==null?v+'<span style="font-size:10px;color:var(--tx3);margin-left:2px;">'+m.unit+'</span>':'<span style="color:var(--tx3);">—</span>')
+          +'</td><td style="text-align:right;padding:7px 6px;font-size:11px;color:var(--tx3);border-bottom:0.5px solid var(--bd);">'+(n?n+'R':'')+'</td>';
+      });
+      return row+'</tr>';
+    }).join('');
+
+    detail.innerHTML=headerRow
+      +'<div style="font-size:11px;color:var(--tx3);margin-bottom:6px;">平均タイム・位置取り 対比</div>'
+      +'<div style="overflow-x:auto;margin-bottom:14px;"><table style="width:100%;border-collapse:collapse;"><thead>'+tblH+'</thead><tbody>'+tblB+'</tbody></table></div>'
+      +'<div style="font-size:11px;color:var(--tx3);">保存日時：'+entry.savedAt+'</div>';
+  }
+}
+
+function metricCard(label,val,unit,n){
+  return '<div style="background:var(--bg2);border-radius:var(--r);padding:10px 12px;">'
+    +'<div style="font-size:11px;color:var(--tx3);margin-bottom:4px;">'+label+'</div>'
+    +'<div style="font-size:18px;font-weight:500;color:var(--tx);">'+(val!==null?val+'<span style="font-size:11px;color:var(--tx3);margin-left:2px;">'+unit+'</span>':'—')+'</div>'
+    +(n?'<div style="font-size:11px;color:var(--tx3);">'+n+'R分の平均</div>':'')
+    +'</div>';
+}
+
+// 履歴トグルボタン
+function toggleHistory(){
+  var panel=document.getElementById('history-panel');
+  var btn=document.getElementById('hist-toggle-btn');
+  var history=loadHistoryRaw();
+  if(panel.style.display==='none'){
+    if(!history.length){alert('保存された履歴がありません。');return;}
+    renderHistoryList();
+    panel.style.display='block';
+    btn.textContent='履歴を閉じる';
+  }else{
+    panel.style.display='none';
+    btn.textContent='過去の分析を見る';
+  }
+}
+</script>
+
+<div id="howto-modal" onclick="closeHowtoModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px;">
+  <div onclick="event.stopPropagation()" style="background:#fff;border-radius:12px;max-width:860px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.3);">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #e0e4ee;">
+      <span id="howto-modal-title" style="font-size:14px;font-weight:600;color:#1a2744;"></span>
+      <button onclick="closeHowtoModal()" style="background:none;border:none;cursor:pointer;font-size:22px;color:#8896b8;line-height:1;padding:0 4px;">&times;</button>
+    </div>
+    <img id="howto-modal-img" src="" alt="" style="width:100%;display:block;">
+    <p id="howto-modal-desc" style="padding:14px 18px;font-size:13px;color:#4a5578;line-height:1.8;border-top:1px solid #e0e4ee;margin:0;"></p>
+  </div>
+</div>
+<script>
+function openHowtoModal(step,title,src,desc){
+  document.getElementById('howto-modal-title').textContent='STEP '+step+'\uff1a'+title;
+  document.getElementById('howto-modal-img').src=src;
+  document.getElementById('howto-modal-img').alt=title;
+  document.getElementById('howto-modal-desc').textContent=desc;
+  var m=document.getElementById('howto-modal');
+  m.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closeHowtoModal(){
+  document.getElementById('howto-modal').style.display='none';
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeHowtoModal();});
+</script>
+
+<script>
+document.querySelectorAll('.howto-card').forEach(function(card){
+  card.addEventListener('click',function(){
+    var img=card.querySelector('img');
+    openHowtoModal(
+      card.getAttribute('data-step'),
+      card.getAttribute('data-title'),
+      img.src,
+      card.getAttribute('data-desc')
+    );
+  });
+});
+</script>
+</body>
+</html>
