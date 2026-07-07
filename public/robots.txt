@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://t-keiba-analyzer.pages.dev/sitemap.xml
