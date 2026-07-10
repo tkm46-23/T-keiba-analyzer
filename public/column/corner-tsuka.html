@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>コーナー通過順とは｜脚質の読み方をわかりやすく解説 - マイ競馬リサーチ</title>
+<meta name="description" content="競馬の「コーナー通過順」の見方と、そこから読み取れる脚質（先行・差し・追込など）についてわかりやすく解説します。">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://t-keiba-analyzer.pages.dev/column/corner-tsuka.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="コーナー通過順とは｜脚質の読み方をわかりやすく解説">
+<meta property="og:description" content="競馬の「コーナー通過順」の見方と、そこから読み取れる脚質についてわかりやすく解説します。">
+<meta property="og:url" content="https://t-keiba-analyzer.pages.dev/column/corner-tsuka.html">
+<meta property="og:site_name" content="マイ競馬リサーチ">
+<link rel="icon" type="image/png" href="../favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif;font-size:15px;line-height:1.9;color:#0f1729;background:#eef0f7;min-height:100vh}
+.hdr{background:#1a2744;padding:0 24px;height:54px;display:flex;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 rgba(255,255,255,.08)}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-mark{width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center}
+.logo-mark img{width:24px;height:24px;border-radius:5px;display:block}
+.logo-text{font-size:15px;font-weight:500;color:#fff;letter-spacing:.02em}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.4);margin-top:1px}
+.hdr-nav{margin-left:auto;display:flex;gap:18px}
+.hdr-nav a{font-size:12px;color:rgba(255,255,255,.7);text-decoration:none}
+.hdr-nav a:hover{color:#fff}
+.main{max-width:720px;margin:0 auto;padding:28px 16px 40px}
+.breadcrumb{font-size:11px;color:#607090;margin-bottom:14px}
+.breadcrumb a{color:#607090}
+h1{font-size:22px;font-weight:700;color:#1a2744;margin-bottom:8px;line-height:1.5}
+.lead{font-size:13px;color:#607090;margin-bottom:24px}
+article{background:#fff;border:.5px solid #dcdcd8;border-radius:12px;padding:24px 22px;margin-bottom:16px}
+article h2{font-size:17px;font-weight:700;color:#1a2744;margin:28px 0 12px;padding-top:8px;border-top:.5px solid #eef0f7}
+article h2:first-child{margin-top:0;padding-top:0;border-top:none}
+article p{margin-bottom:14px;color:#2c3a5a}
+article ul,article ol{margin:0 0 14px 20px;color:#2c3a5a}
+article li{margin-bottom:6px}
+.sample-box{background:#f4f6fb;border:.5px solid #dcdcd8;border-radius:8px;padding:14px 16px;margin-bottom:14px;font-size:13px;color:#2c3a5a}
+.sample-box code{background:#fff;border:.5px solid #dcdcd8;border-radius:4px;padding:2px 8px;font-weight:700;color:#1a2744}
+.cta-box{background:#c4d8f2;border:.5px solid #90b8e0;border-radius:12px;padding:20px;text-align:center;margin:24px 0;}
+.cta-box p{color:#0a1830;margin-bottom:12px;font-weight:500}
+.cta-btn{display:inline-flex;align-items:center;gap:6px;background:#1a2744;color:#fff;padding:10px 22px;border-radius:8px;font-size:13px;font-weight:500;text-decoration:none}
+.book-box{background:#fff;border:1px solid #e0e4ee;border-radius:10px;padding:14px 18px;margin-bottom:16px}
+.book-box p.ttl{font-size:12px;font-weight:700;color:#1a2744;margin:0 0 8px}
+.book-box ul{margin:0;padding-left:18px;font-size:13px;line-height:2;color:#334}
+.book-box .disclosure{font-size:10px;color:#9099ab;margin:10px 0 0;line-height:1.6}
+.related{background:#fff;border:.5px solid #dcdcd8;border-radius:12px;padding:18px 20px;}
+.related p.ttl{font-size:12px;font-weight:700;color:#1a2744;margin-bottom:10px}
+.related a{display:block;font-size:13px;color:#2d5fa8;text-decoration:none;padding:6px 0;border-bottom:.5px solid #eef0f7}
+.related a:last-child{border-bottom:none}
+footer{background:#1a2744;padding:20px 16px;margin-top:20px}
+.ftr-inner{max-width:960px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:10px}
+.ftr-inner a{font-size:12px;color:rgba(255,255,255,.6);text-decoration:none}
+.ftr-inner p{font-size:11px;color:rgba(255,255,255,.4)}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <a href="../index.html" class="logo">
+    <div class="logo-mark"><img src="../favicon.png" alt="マイ競馬リサーチ ロゴ"></div>
+    <div>
+      <div class="logo-text">マイ競馬リサーチ</div>
+      <div class="logo-sub">Race Horse Analyzer</div>
+    </div>
+  </a>
+  <nav class="hdr-nav">
+    <a href="../index.html">分析ツール</a>
+    <a href="index.html">コラム</a>
+  </nav>
+</header>
+
+<div class="main">
+  <p class="breadcrumb"><a href="../index.html">トップ</a> ＞ <a href="index.html">コラム</a> ＞ コーナー通過順とは</p>
+  <h1>コーナー通過順とは｜数字の並びから脚質を読み解く</h1>
+  <p class="lead">競馬初心者向け・用語解説シリーズ</p>
+
+  <article>
+    <h2>「通過順」の表記の見方</h2>
+    <p>netkeibaなどの成績表にある「通過」欄には、<code>6-6-1-2</code>のようにハイフンで区切られた数字が並んでいます。これは、レース中の各コーナーを通過した時点での、その馬の順位（何番手を走っていたか）を表しています。</p>
+    <div class="sample-box">
+      例：<code>6-6-1-2</code>（4コーナーあるレースの場合）<br>
+      → 1コーナー6番手 → 2コーナー6番手 → 3コーナー1番手 → 4コーナー（最終コーナー）2番手
+    </div>
+    <p>数字の個数はコースによって異なり、2つの場合（例：<code>3-2</code>）は「第1コーナー・最終コーナー」の2ポイントだけが記録されているケースです。最初の数字が「第1コーナー通過順位」、最後の数字が「最終コーナー通過順位」と覚えておけば、どのコースでも読み解けます。</p>
+
+    <h2>通過順から見える「脚質」</h2>
+    <p>通過順の推移を見ると、その馬がレース中どのようなポジションを走る傾向にあるかが分かります。一般的に、以下のような分類がよく使われます。</p>
+    <ul>
+      <li><strong>逃げ・先行</strong>：早い段階から上位（1〜4番手程度）を走るタイプ</li>
+      <li><strong>差し</strong>：中団あたりで我慢し、最終コーナーからスパートするタイプ</li>
+      <li><strong>追込</strong>：終始後方に構え、直線で一気に順位を上げるタイプ</li>
+    </ul>
+    <p>同じ「4着」という結果でも、終始先頭付近を走っていた馬と、後方から追い込んで4着まで来た馬とでは、次走以降の狙い方が変わってきます。例えば、逃げ・先行タイプは自分のペースを作れるレースで、差し・追込タイプは前が止まりやすい消耗戦で本領を発揮しやすい、と言われています。</p>
+
+    <h2>通過順だけでは分からないこと</h2>
+    <p>通過順は「その馬がどこを走っていたか」を示す数字であって、「なぜそこを走ったか」までは教えてくれません。同じ通過順でも、レース展開（ペースが速かったか遅かったか）や馬場状態によって、その位置取りが有利だったのか不利だったのかは変わってきます。</p>
+    <p>そのため、通過順は単独で見るよりも、上がり3F（ラスト600mのタイム）や馬場状態と組み合わせて見ることで、より正確にその馬の適性を判断できます。</p>
+
+    <div class="cta-box">
+      <p>あなたが注目している馬は、どんな脚質タイプ？過去の通過順を自動で集計して診断できます。</p>
+      <a href="../index.html" class="cta-btn"><i class="ti ti-chart-bar" aria-hidden="true"></i>マイ競馬リサーチで調べてみる</a>
+    </div>
+
+    <h2>まとめ</h2>
+    <p>コーナー通過順は、その馬の「レース中の走り方の癖」を映し出す情報です。1回のレースだけでなく複数レース分の通過順の傾向を積み重ねて見ることで、その馬に合ったレース条件が見えてきます。</p>
+  </article>
+
+  <div class="book-box">
+    <p class="ttl">関連書籍</p>
+    <ul>
+      <li><a href="https://amzn.to/4h3qoXO" target="_blank" rel="nofollow noopener">亀谷敬正の競馬血統辞典2</a></li>
+      <li><a href="https://amzn.to/4eSwZDh" target="_blank" rel="nofollow noopener">競馬を読む力</a></li>
+    </ul>
+    <p class="disclosure">当サイトは、Amazon.co.jpを宣伝しリンクすることによってサイトが紹介料を獲得できる手段を提供することを目的に設定された、アフィリエイト宣伝プログラムであるAmazonアソシエイト・プログラムの参加者です。</p>
+  </div>
+
+  <div class="related">
+    <p class="ttl">関連記事</p>
+    <a href="ninki-odds.html">人気とオッズの読み方｜数字の裏にある意味を知る</a>
+    <a href="index.html">コラム一覧を見る</a>
+  </div>
+</div>
+
+<footer>
+  <div class="ftr-inner">
+    <div style="display:flex;gap:20px;">
+      <a href="../terms.html">利用規約</a>
+      <a href="../privacy.html">プライバシーポリシー</a>
+    </div>
+    <p>© 2026 マイ競馬リサーチ　運営者：keibawithM</p>
+  </div>
+</footer>
+</body>
+</html>
